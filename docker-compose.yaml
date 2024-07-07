@@ -11,6 +11,7 @@ services:
       - "3000:3000"
     volumes:
       - .:/app/src:/usr/app
+    command: tail -f /dev/null
   postgres:
     image: postgres
     container_name: postgres

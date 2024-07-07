@@ -9,3 +9,13 @@ services:
       - "5432:5432"
     volumes:
       - .database/database_seeding.sql:/docker-entrypoint-initdb.d/database_seeding.sql
+
+    command: tail -f /dev/null questo comando nel docker compose serve per mantenere il container attivo 
+    in modo da testare il codice al suo interno in tempo reale
+
+
+ssh-keygen -t rsa -b 4096 -m PEM -f jwtRS256.key
+
+openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
+cat jwtRS256.key
+cat jwtRS256.key.pub      

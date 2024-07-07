@@ -3,9 +3,9 @@ FROM node:latest
 COPY package.json /usr
 WORKDIR /usr 
 RUN npm install
+RUN npm install -g typescript
 WORKDIR /usr/app
 COPY . .
-EXPOSE 3000
-
+RUN tsc ./src/index.ts
 # Comando per avviare l'applicazione
-CMD ["node", "app.js"]
+#CMD ["node", "./src/index.js"]
