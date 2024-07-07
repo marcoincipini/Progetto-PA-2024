@@ -8,4 +8,4 @@ WORKDIR /usr/app
 COPY . .
 RUN tsc ./src/index.ts
 # Comando per avviare l'applicazione
-#CMD ["node", "./src/index.js"]
+CMD ["node", "./src/index.js"]
