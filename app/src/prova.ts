@@ -1,4 +1,4 @@
-import Sequelize from "@sequelize/core";
+import { Sequelize } from "sequelize";
 import { DbConnections } from "./DbConnections";
 
 const connection: Sequelize = DbConnections.getConnection();

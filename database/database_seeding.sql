@@ -5,7 +5,8 @@ CREATE TABLE utenti (
   cognome VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  ruolo VARCHAR(32) NOT NULL
+  ruolo VARCHAR(32) NOT NULL,
+  token DECIMAL(8,2) NOT NULL
 );
 
 -- Creazione della tabella "veicoli"
@@ -69,8 +70,8 @@ CREATE TABLE fatture (
   transito_ingresso INT NOT NULL,
   transito_uscita INT NOT NULL,
   FOREIGN KEY (id_parcheggio) REFERENCES parcheggi(id),
-  FOREIGN KEY (transito_ingresso) REFERENCES transito(id),
-  FOREIGN KEY (transito_uscita) REFERENCES transito(id)
+  FOREIGN KEY (transito_ingresso) REFERENCES transiti(id),
+  FOREIGN KEY (transito_uscita) REFERENCES transiti(id)
 );
 
 -- Inserimento di dati di esempio nella tabella "parcheggio"
