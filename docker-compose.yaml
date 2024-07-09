@@ -19,7 +19,7 @@ services:
     env_file:
       - ./app/.env  
     environment:
-      - POSTGRES_DB=parcheggi
+      - POSTGRES_DB=Parkings
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin  
     ports:

@@ -1,90 +1,92 @@
 
--- Creazione della tabella "utenti"
-CREATE TABLE utenti (
+-- Creazione della tabella "users"
+CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
-  nome VARCHAR(255) NOT NULL,
-  cognome VARCHAR(255) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  surname VARCHAR(255) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
-  ruolo VARCHAR(32)
+  role VARCHAR(32),
+  token REAL NOT NULL
 );
 
--- Creazione della tabella "parcheggio"
-CREATE TABLE parcheggi (
+-- Creazione della tabella "parkings"
+CREATE TABLE IF NOT EXISTS parkings (
   id SERIAL PRIMARY KEY,
-  nome VARCHAR(255) NOT NULL,
-  posti_auto INT NOT NULL,
-  posti_occupati INT NOT NULL,
-  ora_inizio_giorno TIME NOT NULL,
-  ora_fine_giorno TIME NOT NULL
+  name VARCHAR(255) NOT NULL,
+  parking_spots INT NOT NULL,
+  occupied_spots INT NOT NULL,
+  day_starting_hour TIME NOT NULL,
+  day_finishing_hour TIME NOT NULL
 );
 
--- Creazione della tabella "varci"
-CREATE TABLE varchi (
+-- Creazione della tabella "varchi"
+CREATE TABLE IF NOT EXISTS passages (
   id SERIAL PRIMARY KEY,
-  id_parcheggio INT NOT NULL,
-  nome VARCHAR(255) NOT NULL,
-  ingresso BOOLEAN NOT NULL DEFAULT TRUE,
-  uscita BOOLEAN NOT NULL DEFAULT TRUE,
-  FOREIGN KEY (id_parcheggio) REFERENCES parcheggi(id)
+  parking_id INT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  entrance BOOLEAN NOT NULL DEFAULT TRUE,
+  exit BOOLEAN NOT NULL DEFAULT TRUE,
+  FOREIGN KEY (parking_id) REFERENCES parkings(id)
 );
 
--- Creazione della tabella "veicoli"
-CREATE TABLE veicoli (
-  targa VARCHAR(10) PRIMARY KEY,
-  tipo_veicolo VARCHAR(32) NOT NULL,
-  id_utente INT NOT NULL,
-  FOREIGN KEY (id_utente) REFERENCES utenti(id)
+-- Creazione della tabella "vehicles"
+CREATE TABLE IF NOT EXISTS vehicles (
+  plate VARCHAR(10) PRIMARY KEY,
+  vehicle_type VARCHAR(32) NOT NULL,
+  user_id INT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 -- Creazione della tabella "transito"
-CREATE TABLE transiti (
+CREATE TABLE IF NOT EXISTS transits (
   id SERIAL PRIMARY KEY,
-  id_varco INT NOT NULL,
-  targa VARCHAR(10) NOT NULL,
-  data_passaggio DATE NOT NULL,
-  ora_passaggio TIME NOT NULL,
-  verso CHAR NOT NULL,
-  tipo_veicolo VARCHAR(32) NOT NULL,
-  FOREIGN KEY (id_varco) REFERENCES varchi(id),
-  FOREIGN KEY (targa) REFERENCES veicoli(targa)
+  passage_id INT NOT NULL,
+  plate VARCHAR(10) NOT NULL,
+  passing_by_date DATE NOT NULL,
+  passing_by_hour TIME NOT NULL,
+  direction CHAR NOT NULL,
+  vehicle_type VARCHAR(32) NOT NULL,
+  FOREIGN KEY (passage_id) REFERENCES passages(id),
+  FOREIGN KEY (plate) REFERENCES vehicles(plate)
 );
 
--- Creazione della tabella "tariffe"
-CREATE TABLE tariffe (
+-- Creazione della tabella "fees"
+CREATE TABLE IF NOT EXISTS fees (
   id SERIAL PRIMARY KEY,
-  id_parcheggio INT NOT NULL,
-  nome VARCHAR(255) NOT NULL,
-  importo DECIMAL(10,2) NOT NULL,
-  tipo_veicolo VARCHAR(32) NOT NULL,
-  notte BOOLEAN NOT NULL DEFAULT TRUE,
-  festivo BOOLEAN NOT NULL DEFAULT TRUE,
-  FOREIGN KEY (id_parcheggio) REFERENCES parcheggi(id)
+  parking_id INT NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  hourly_amount DECIMAL(10,2) NOT NULL,
+  vehicle_type VARCHAR(32) NOT NULL,
+  night BOOLEAN NOT NULL DEFAULT TRUE,
+  festive BOOLEAN NOT NULL DEFAULT TRUE,
+  FOREIGN KEY (parking_id) REFERENCES parkings(id)
 );
 
 -- Creazione della tabella "fattura"
-CREATE TABLE fatture (
+CREATE TABLE IF NOT EXISTS bills (
   id SERIAL PRIMARY KEY,
-  id_parcheggio INT NOT NULL,
-  importo DECIMAL(10,2) NOT NULL,
-  transito_ingresso INT NOT NULL, 
-  transito_uscita INT NOT NULL,
-  FOREIGN KEY (transito_ingresso) REFERENCES transiti(id),
-  FOREIGN KEY (transito_uscita) REFERENCES transiti(id),
-  FOREIGN KEY (id_parcheggio) REFERENCES parcheggi(id)
+  parking_id INT NOT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  entrance_transit INT NOT NULL, 
+  exit_transit INT NOT NULL,
+  FOREIGN KEY (entrance_transit) REFERENCES transits(id),
+  FOREIGN KEY (exit_transit
+) REFERENCES transits(id),
+  FOREIGN KEY (parking_id) REFERENCES parkings(id)
 );
 
--- Inserimento di dati di esempio nella tabella "utenti"
-INSERT INTO utenti (nome, cognome, email, password, ruolo)
+-- Inserimento di dati di esempio nella tabella "users"
+INSERT INTO users (name, surname, email, password, role, token)
 VALUES 
-  ('Marco', 'Rossi', 'marco.rossi@example.com', 'password123', 'operatore'),
-  ('Laura', 'Bianchi', 'laura.bianchi@example.com', 'password123', 'automobilista'),
-  ('Giovanni', 'Verdi', 'giovanni.verdi@example.com', 'password123', 'automobilista'),
-  ('Anna', 'Neri', 'anna.neri@example.com', 'password123', 'automobilista'),
-  ('Paolo', 'Russo', 'paolo.russo@example.com', 'password123', 'operatore');
+  ('Marco', 'Rossi', 'marco.rossi@example.com', 'password123', 'operatore', 10.0),
+  ('Laura', 'Bianchi', 'laura.bianchi@example.com', 'password123', 'automobilista', 5.0),
+  ('Giovanni', 'Verdi', 'giovanni.verdi@example.com', 'password123', 'automobilista', 5.0),
+  ('Anna', 'Neri', 'anna.neri@example.com', 'password123', 'automobilista', 5.0),
+  ('Paolo', 'Russo', 'paolo.russo@example.com', 'password123', 'operatore', 10.0);
 
--- Inserimento di dati di esempio nella tabella "veicoli"
-INSERT INTO veicoli (targa, tipo_veicolo, id_utente)
+-- Inserimento di dati di esempio nella tabella "vehicles"
+INSERT INTO vehicles (plate, vehicle_type, user_id)
 VALUES 
   ('AB123CD', 'Auto', 1),
   ('EF456GH', 'Auto', 2),
@@ -106,16 +108,16 @@ VALUES
   ('K789LMN', 'Moto', 1),
   ('P012OPQ', 'Auto', 3);
 
--- Inserimento di dati di esempio nella tabella "parcheggio"
-INSERT INTO parcheggi (nome, posti_auto, posti_occupati, ora_inizio_giorno, ora_fine_giorno)
-VALUES ('Parcheggio Centrale', 100, 50, '06:00:00', '22:00:00'),
-       ('Parcheggio Stazione', 200, 100, '07:00:00', '21:00:00'),
-       ('Parcheggio Mare', 150, 75, '08:00:00', '20:00:00'),
-       ('Parcheggio Duomo', 300, 150, '09:00:00', '23:00:00'),
-       ('Parcheggio Museo', 250, 125, '06:30:00', '19:30:00');
+-- Inserimento di dati di esempio nella tabella "parkings"
+INSERT INTO parkings (name, parking_spots, occupied_spots, day_starting_hour, day_finishing_hour)
+VALUES ('parcheggio Centrale', 100, 50, '06:00:00', '22:00:00'),
+       ('parcheggio Stazione', 200, 100, '07:00:00', '21:00:00'),
+       ('parcheggio Mare', 150, 75, '08:00:00', '20:00:00'),
+       ('parcheggio Duomo', 300, 150, '09:00:00', '23:00:00'),
+       ('parcheggio Museo', 250, 125, '06:30:00', '19:30:00');
 
--- Inserimento di dati di esempio nella tabella "varchi"
-INSERT INTO varchi (id_parcheggio, nome, ingresso, uscita)
+-- Inserimento di dati di esempio nella tabella "passages"
+INSERT INTO passages (parking_id, name, entrance, exit)
 VALUES (1, 'Via Roma', TRUE, TRUE),
        (2, 'Via Milano', TRUE, FALSE),
        (3, 'Via Napoli', FALSE, TRUE),
@@ -130,8 +132,8 @@ VALUES (1, 'Via Roma', TRUE, TRUE),
        (4, 'Via Verona', TRUE, TRUE),
        (5, 'Via Agrigento', FALSE, TRUE);
 
--- Inserimento di dati di esempio nella tabella "transiti"
-INSERT INTO transiti (id_varco, targa, data_passaggio, ora_passaggio, verso, tipo_veicolo)
+-- Inserimento di dati di esempio nella tabella "transits"
+INSERT INTO transits (passage_id, plate, passing_by_date, passing_by_hour, direction, vehicle_type)
 VALUES 
   (1, 'AB123CD', '2024-06-15', '07:15:32', 'E', 'Auto'),
   (1, 'AB123CD', '2024-06-15', '19:30:45', 'U', 'Auto'),
@@ -169,9 +171,9 @@ VALUES
   (5, 'STU901V', '2024-08-22', '23:30:40', 'U', 'Camion');
 
 
-INSERT INTO tariffe (id_parcheggio, nome, importo, tipo_veicolo, notte, festivo)
+INSERT INTO fees (parking_id, name, hourly_amount, vehicle_type, night, festive)
 VALUES 
-  -- Parcheggio 1
+  -- parkings 1
   (1, 'Tariffa Giornaliera Auto', 1.00, 'Auto', FALSE, FALSE),
   (1, 'Tariffa Notturna Auto', 4.00, 'Auto', TRUE, FALSE),
   (1, 'Tariffa Festiva Auto', 1.50, 'Auto', FALSE, TRUE),
@@ -181,7 +183,7 @@ VALUES
   (1, 'Tariffa Giornaliera Moto', 1.00, 'Moto', FALSE, FALSE),
   (1, 'Tariffa Notturna Moto', 3.00, 'Moto', TRUE, FALSE),
   (1, 'Tariffa Festiva Moto', 1.20, 'Moto', FALSE, TRUE),
-  -- Parcheggio 2
+  -- parkings 2
   (2, 'Tariffa Giornaliera Auto', 1.20, 'Auto', FALSE, FALSE),
   (2, 'Tariffa Notturna Auto', 3.50, 'Auto', TRUE, FALSE),
   (2, 'Tariffa Festiva Auto', 2.20, 'Auto', FALSE, TRUE),
@@ -191,7 +193,7 @@ VALUES
   (2, 'Tariffa Giornaliera Moto', 1.10, 'Moto', FALSE, FALSE),
   (2, 'Tariffa Notturna Moto', 2.50, 'Moto', TRUE, FALSE),
   (2, 'Tariffa Festiva Moto', 2.00, 'Moto', FALSE, TRUE),
-  -- Parcheggio 3
+  -- parkings 3
   (3, 'Tariffa Giornaliera Auto', 0.80, 'Auto', FALSE, FALSE),
   (3, 'Tariffa Notturna Auto', 2.50, 'Auto', TRUE, FALSE),
   (3, 'Tariffa Festiva Auto', 1.00, 'Auto', FALSE, TRUE),
@@ -201,7 +203,7 @@ VALUES
   (3, 'Tariffa Giornaliera Moto', 0.70, 'Moto', FALSE, FALSE),
   (3, 'Tariffa Notturna Moto', 1.80, 'Moto', TRUE, FALSE),
   (3, 'Tariffa Festiva Moto', 1.10, 'Moto', FALSE, TRUE),
-  -- Parcheggio 4
+  -- parkings 4
   (4, 'Tariffa Giornaliera Auto', 2.00, 'Auto', FALSE, FALSE),
   (4, 'Tariffa Notturna Auto', 5.00, 'Auto', TRUE, FALSE),
   (4, 'Tariffa Festiva Auto', 3.00, 'Auto', FALSE, TRUE),
@@ -211,7 +213,7 @@ VALUES
   (4, 'Tariffa Giornaliera Moto', 1.75, 'Moto', FALSE, FALSE),
   (4, 'Tariffa Notturna Moto', 3.38, 'Moto', TRUE, FALSE),
   (4, 'Tariffa Festiva Moto', 2.50, 'Moto', FALSE, TRUE),
-  -- Parcheggio 5
+  -- parkings 5
   (5, 'Tariffa Giornaliera Auto', 0.50, 'Auto', FALSE, FALSE),
   (5, 'Tariffa Notturna Auto', 3.50, 'Auto', TRUE, FALSE),
   (5, 'Tariffa Festiva Auto', 1.20, 'Auto', FALSE, TRUE),
@@ -222,8 +224,8 @@ VALUES
   (5, 'Tariffa Notturna Moto', 1.25, 'Moto', TRUE, FALSE),
   (5, 'Tariffa Festiva Moto', 0.80, 'Moto', FALSE, TRUE);
 
--- Inserimento di dati di esempio nella tabella "fatture"
-INSERT INTO fatture (id_parcheggio, importo, transito_ingresso, transito_uscita)
+-- Inserimento di dati di esempio nella tabella "bills"
+INSERT INTO bills (parking_id, amount, entrance_transit, exit_transit)
 VALUES 
   (1, 10.50, 1, 2),
   (2, 20.00, 3, 4),
