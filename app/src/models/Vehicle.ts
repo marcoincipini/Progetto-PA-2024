@@ -47,6 +47,6 @@ Vehicle.init(
 );
 
 // Define the association between Vehicle and User (optional)
-Vehicle.belongsTo(User, { foreignKey: 'User_id' });
+Vehicle.belongsTo(User, { foreignKey: 'User_id', onDelete: 'CASCADE' });
 
 export default Vehicle;

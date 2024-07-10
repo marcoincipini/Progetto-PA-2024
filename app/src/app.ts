@@ -10,6 +10,7 @@ import * as Fee from './controllers/FeeController';
 import { DbConnections } from "./models/DbConnections";
 import { login } from './controllers/LoginController';
 import { authenticateJWT } from './middleware/auth';
+import ParkingCRUDController from './controllers/ParkingCRUDController'
 
 dotenv.config();
 
@@ -29,7 +30,10 @@ async () => {
 router.post('/login', login);
 // Endpoint per ottenere tutti gli utenti
 router.get('/api/users', authenticateJWT, User.getUsers);
-router.get('/api/parkings', authenticateJWT, Parking.getParkings);
+router.post('/api/parkings', authenticateJWT, ParkingCRUDController.parkingcreate);
+router.get('/api/parkings/:id', authenticateJWT, ParkingCRUDController.getById);
+router.put('/api/parkings/:id', authenticateJWT, ParkingCRUDController.update);
+router.delete('/api/parkings/:id', authenticateJWT, ParkingCRUDController.delete);
 router.get('/api/passages', authenticateJWT, Passage.getPassages);
 router.get('/api/transits',authenticateJWT, Transit.getTransit);
 router.get('/api/bills', authenticateJWT, Bill.getBills);

@@ -21,7 +21,13 @@ class Parking extends Model<ParkingAttributes, ParkingCreationAttributes> implem
   public occupied_spots!: number;
   public day_starting_hour!: string;
   public day_finishing_hour!: string;
+  public static associate(models: any) {
+    Parking.hasMany(models.Passage, { foreignKey: 'parking_id', onDelete: 'CASCADE' });
+    Parking.hasMany(models.Fee, { foreignKey: 'parking_id', onDelete: 'CASCADE' });
+    Parking.hasMany(models.Bill, { foreignKey: 'parking_id', onDelete: 'CASCADE' });
+  }
 }
+
 
 Parking.init(
   {

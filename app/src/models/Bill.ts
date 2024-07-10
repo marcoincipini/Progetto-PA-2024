@@ -67,8 +67,8 @@ Bill.init(
 );
 
 // Define the associations between Bill and Parcheggio & Transito (optional)
-Bill.belongsTo(Parking, { foreignKey: 'parking_id' });
-Bill.belongsTo(Transit, { foreignKey: 'entrance_transit', as: 'entrance' }); // Use alias for clarity
-Bill.belongsTo(Transit, { foreignKey: 'exit_transit', as: 'exit' }); // Use alias for clarity
+Bill.belongsTo(Parking, { foreignKey: 'parking_id',onDelete: 'CASCADE' });
+Bill.belongsTo(Transit, { foreignKey: 'entrance_transit', as: 'entrance', onDelete: 'CASCADE' }); // Use alias for clarity
+Bill.belongsTo(Transit, { foreignKey: 'exit_transit', as: 'exit', onDelete: 'CASCADE' }); // Use alias for clarity
 
 export default Bill;

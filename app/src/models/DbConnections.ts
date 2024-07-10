@@ -23,7 +23,7 @@ export class DbConnections {
             port: Number(process.env.DB_PORT),
             dialect: 'postgres', // Assuming Postgres dialect based on original code
         });
-
+        
 
 
     }

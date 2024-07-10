@@ -72,6 +72,6 @@ Fee.init(
 );
 
 // Define the association between Fee and Parcheggio (optional)
-Fee.belongsTo(Parking, { foreignKey: 'parking_id' });
+Fee.belongsTo(Parking, { foreignKey: 'parking_id', onDelete: 'CASCADE' });
 
 export default Fee;
