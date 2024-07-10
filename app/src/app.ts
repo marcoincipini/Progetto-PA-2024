@@ -8,6 +8,8 @@ import * as Transit from './controllers/TransitController';
 import * as Bill from './controllers/BillController';
 import * as Fee from './controllers/FeeController';
 import { DbConnections } from "./models/DbConnections";
+import { login } from './controllers/LoginController';
+import { authenticateJWT } from './middleware/auth';
 
 dotenv.config();
 
@@ -23,13 +25,17 @@ async () => {
     console.error('Unable to connect to the database:', error);
   }
 };
+
+router.post('/login', login);
 // Endpoint per ottenere tutti gli utenti
-router.get('/api/users', User.getUsers);
-router.get('/api/parkings', Parking.getParkings);
-router.get('/api/passages', Passage.getPassages);
-router.get('/api/transits', Transit.getTransit);
-router.get('/api/bills', Bill.getBills);
-router.get('/api/fees', Fee.getFees);
+router.get('/api/users', authenticateJWT, User.getUsers);
+router.get('/api/parkings', authenticateJWT, Parking.getParkings);
+router.get('/api/passages', authenticateJWT, Passage.getPassages);
+router.get('/api/transits',authenticateJWT, Transit.getTransit);
+router.get('/api/bills', authenticateJWT, Bill.getBills);
+router.get('/api/fees', authenticateJWT, Fee.getFees);
+
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;

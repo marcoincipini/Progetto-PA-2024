@@ -23,6 +23,19 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public password!: string;
     public role!: string;
     public token!: number;
+    //get user data
+    static async getUserData(userEmail:string): Promise<User | null> {
+        
+    try {
+        const user = await this.findOne({
+            where: { email: userEmail }
+        });
+        return user;
+    } catch (error) {
+        console.error('Errore durante il recupero dei dati utente:', error);
+        return null;
+        }
+    }   
 }
 
     User.init(
@@ -66,3 +79,4 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     );
 
 export default User;
+

@@ -15,3 +15,4 @@ export async function getUsers(req: Request, res: Response): Promise<void> {
     res.status(500).json({ error: 'Errore durante il recupero degli utenti' });
   }
 }
+
