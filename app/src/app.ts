@@ -36,6 +36,9 @@ router.post('/api/users', authenticateJWT, (req: any, res: any) => CRUDControlle
 router.get('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.GetRecord(User, req, res));
 router.put('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.UpdateRecord(User, req, res));
 router.delete('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.DeleteRecord(User, req, res));
+router.get('/api/trans', authenticateJWT, (req: any, res: any) => TransitStatusController.getTransits(req, res));
+
+
 router.get('/api/transits', async (req: any, res: any) => {
   try {
     const transits = await Transit.findByPlatesAndDateTimeRange(
@@ -48,7 +51,6 @@ router.get('/api/transits', async (req: any, res: any) => {
     res.status(500).json({ error: error.message });
   }
 });
-router.get('/api/trans', authenticateJWT, (req: any, res: any) => TransitStatusController.getTransits(req, res));
 /*
 router.get('/api/parkings/:id', authenticateJWT, ParkingCRUDController.getById);
 router.put('/api/parkings/:id', authenticateJWT, ParkingCRUDController.update);

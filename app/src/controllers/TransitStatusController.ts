@@ -11,12 +11,13 @@ class TransitStatusController {
     async getTransits(req: Request, res: Response): Promise<Response> {
         try {
             const { plates, startDate, endDate } = req.query;
-            const { role } = req.user;
+            const { role } = req.body.user;
+            //const role = req.locals.user.role;
             // Filtra per targhe solo se l'utente è un automobilista
-            if (role === 'operatore' && plates) {
+            if (role == 'operatore' && plates) {
                 const selectedTransits = Transit.findByPlatesAndDateTimeRange(plates, startDate, endDate);
                 this.selectFormat(await selectedTransits, req, res);
-            } else if (role === 'automobilista' && plates) {
+            } else if (role == 'automobilista' && plates) {
                 if (this.checkPlates(req, res)) {
                     const selectedTransits = Transit.findByPlatesAndDateTimeRange(plates, startDate, endDate);
                     this.selectFormat(await selectedTransits, req, res);
@@ -55,11 +56,11 @@ class TransitStatusController {
 
     async checkPlates(req: Request, res: Response): Promise<Boolean> {
         const { plates } = req.query;
-        const { email } = req.user;
+        const { email } = req.body.user;
         const userPlates = Vehicle.getVehiclesUser(email);
-        (await userPlates).forEach((Vehicle) => {
-            plates.forEach((plates: any) => {
-                if (Vehicle != plates) {
+        (await userPlates).forEach((vehicle) => {
+            plates.forEach((plates: string) => {
+                if (vehicle.plate != plates) {
                     return false;
                 }
             })
