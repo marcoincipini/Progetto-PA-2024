@@ -1,9 +1,9 @@
-import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+import { DataTypes, Model, Optional, Sequelize, Op } from 'sequelize';
 import { DbConnections } from './DbConnections';
 import Passage from './Passage'; // Assuming Passage and Vehicle models are defined in separate files
 import Vehicle from './Vehicle';
 
-const sequelize : Sequelize = DbConnections.getConnection();
+const sequelize: Sequelize = DbConnections.getConnection();
 
 interface TransitAttributes {
   id: number;
@@ -15,7 +15,7 @@ interface TransitAttributes {
   vehicle_type: string;
 }
 
-interface TransitCreationAttributes extends Optional<TransitAttributes, 'id'> {}
+interface TransitCreationAttributes extends Optional<TransitAttributes, 'id'> { }
 
 class Transit extends Model<TransitAttributes, TransitCreationAttributes> implements TransitAttributes {
   public id!: number;
@@ -25,8 +25,28 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
   public passing_by_hour!: string;
   public direction!: string;
   public vehicle_type!: string;
+  static async findByPlatesAndDateTimeRange(
+    plates: string[],
+    startDateTime: string,
+    endDateTime: string
+  ): Promise<Transit[]> {
+    return this.findAll({
+      where: {
+        plate: {
+          [Op.in]: plates,
+        },
+        [Op.and]: [
+          sequelize.where(
+            sequelize.fn('CONCAT', sequelize.col('passing_by_date'), ' ', sequelize.col('passing_by_hour')),
+            {
+              [Op.between]: [startDateTime, endDateTime],
+            }
+          ),
+        ],
+      },
+    });
+  }
 }
-
 Transit.init(
   {
     id: {

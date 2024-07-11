@@ -16,6 +16,22 @@ class Vehicle extends Model<VehicleAttributes, VehicleCreationAttributes> implem
   public plate!: string;
   public vehicle_type!: string;
   public User_id!: number;
+
+  static async getVehiclesUser(email: string): Promise<Vehicle[]> {
+    try {
+      const vehicles = await Vehicle.findAll({
+        include: [{
+          model: User,
+          where: { email },
+          attributes: [] // Exclude user attributes from the result
+        }]
+      });
+      return vehicles;
+    } catch (error) {
+      console.error('Errore durante il recupero dei veicoli:', error);
+      throw error;
+    }
+  }
 }
 
 Vehicle.init(

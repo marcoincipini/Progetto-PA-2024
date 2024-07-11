@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { Sequelize } from 'sequelize';
 import CRUDController from './controllers/CRUDController';
-//import TransitStatusController from './controllers/TransitStatusController';
+import TransitStatusController from './controllers/TransitStatusController';
 import { DbConnections } from "./models/DbConnections";
 import { login } from './controllers/LoginController';
 import { authenticateJWT } from './middleware/auth';
@@ -36,8 +36,19 @@ router.post('/api/users', authenticateJWT, (req: any, res: any) => CRUDControlle
 router.get('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.GetRecord(User, req, res));
 router.put('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.UpdateRecord(User, req, res));
 router.delete('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.DeleteRecord(User, req, res));
-router.get('/api/transits', authenticateJWT, (req: any, res: any) => {console.log(req.user.role)});
-
+router.get('/api/transits', async (req: any, res: any) => {
+  try {
+    const transits = await Transit.findByPlatesAndDateTimeRange(
+      ['AB123CD', 'EF456GH', 'QR345ST'],
+      '2024-03-12 10:50:54',
+      '2024-06-15 07:15:32'
+    );
+    res.json({ transits });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+router.get('/api/trans', authenticateJWT, (req: any, res: any) => TransitStatusController.getTransits(req, res));
 /*
 router.get('/api/parkings/:id', authenticateJWT, ParkingCRUDController.getById);
 router.put('/api/parkings/:id', authenticateJWT, ParkingCRUDController.update);
