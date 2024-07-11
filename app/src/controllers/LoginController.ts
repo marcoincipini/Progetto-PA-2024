@@ -12,6 +12,8 @@ export async function login(req: Request, res: Response) {
         return res.status(400).json({ message: 'Email and password are required' });
     }
 
+    var result:any
+
     try {
         
         const user = await User.getUserData(email);
@@ -38,4 +40,5 @@ export async function login(req: Request, res: Response) {
         console.error('Login error:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
+
 };

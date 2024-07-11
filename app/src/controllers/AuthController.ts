@@ -13,9 +13,7 @@ export async function login(req: Request, res: Response) {
     }
 
     try {
-        
         const user = await User.getUserData(email);
-
         // Check if user exists and password matches
         if (user && user.password === password) {
             console.log("Login as " + user.role);

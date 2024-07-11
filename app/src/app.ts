@@ -1,17 +1,18 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { Sequelize } from 'sequelize';
-import * as User from './controllers/UserController';
-import * as Parking from './controllers/ParkingController';
-import * as Passage from './controllers/PassageController';
-import * as Transit from './controllers/TransitController';
-import * as Bill from './controllers/BillController';
-import * as Fee from './controllers/FeeController';
+import CRUDController from './controllers/CRUDController';
+//import TransitStatusController from './controllers/TransitStatusController';
 import { DbConnections } from "./models/DbConnections";
 import { login } from './controllers/LoginController';
 import { authenticateJWT } from './middleware/auth';
-import ParkingCRUDController from './controllers/ParkingCRUDController'
-
+//import { checkRole } from './middleware/check';
+import Parking from './models/Parking';
+import User from './models/User';
+import Fee from './models/Fee';
+import Bill from './models/Bill';
+import Transit from './models/Transit';
+import Passage from './models/Passage';
 dotenv.config();
 
 const router = express.Router();
@@ -29,16 +30,23 @@ async () => {
 
 router.post('/login', login);
 // Endpoint per ottenere tutti gli utenti
-router.get('/api/users', authenticateJWT, User.getUsers);
-router.post('/api/parkings', authenticateJWT, ParkingCRUDController.parkingcreate);
+//router.get('/api/users', authenticateJWT, User.getUsers);
+// CRUD generico per Parking
+router.post('/api/users', authenticateJWT, (req: any, res: any) => CRUDController.createRecord(User, req, res));
+router.get('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.GetRecord(User, req, res));
+router.put('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.UpdateRecord(User, req, res));
+router.delete('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.DeleteRecord(User, req, res));
+router.get('/api/transits', authenticateJWT, (req: any, res: any) => {console.log(req.user.role)});
+
+/*
 router.get('/api/parkings/:id', authenticateJWT, ParkingCRUDController.getById);
 router.put('/api/parkings/:id', authenticateJWT, ParkingCRUDController.update);
 router.delete('/api/parkings/:id', authenticateJWT, ParkingCRUDController.delete);
-router.get('/api/passages', authenticateJWT, Passage.getPassages);
-router.get('/api/transits',authenticateJWT, Transit.getTransit);
-router.get('/api/bills', authenticateJWT, Bill.getBills);
-router.get('/api/fees', authenticateJWT, Fee.getFees);
-
+router.get('/api/passages', authenticateJWT, PassageController.getPassages);
+router.get('/api/transits',authenticateJWT, TransitController.getTransit);
+router.get('/api/bills', authenticateJWT, BillController.getBills);
+router.get('/api/fees', authenticateJWT, FeeController.getFees);
+*/
 
 
 const app = express();

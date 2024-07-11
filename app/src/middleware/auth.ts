@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
+import User from '../models/User'
 
 dotenv.config();
 
@@ -18,8 +19,8 @@ export const authenticateJWT = (req: CustomRequest, res: Response, next: NextFun
   }
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded;
+    const verified = jwt.verify(token, JWT_SECRET);
+    req.user = verified;
     next();
   } catch (error) {
     return res.status(403).json({ message: 'Access token is invalid or expired' });
