@@ -1,9 +1,9 @@
-import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+import { DataTypes, Model, Op, Optional, Sequelize } from 'sequelize';
 import { DbConnections } from './DbConnections';
 import Parking from './Parking'; // Assuming Parcheggio and Transito models are defined in separate files
 import Transit from './Transit';
 
-const sequelize : Sequelize = DbConnections.getConnection();
+const sequelize: Sequelize = DbConnections.getConnection();
 
 interface BillAttributes {
   id: number;
@@ -13,7 +13,7 @@ interface BillAttributes {
   exit_transit: number;
 }
 
-interface BillCreationAttributes extends Optional<BillAttributes, 'id'> {}
+interface BillCreationAttributes extends Optional<BillAttributes, 'id'> { }
 
 class Bill extends Model<BillAttributes, BillCreationAttributes> implements BillAttributes {
   public id!: number;
@@ -21,8 +21,37 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
   public amount!: number;
   public entrance_transit!: number;
   public exit_transit!: number;
+
+  static async findBillByEntranceTransits(transits: number[]): Promise<Bill[]> {
+    const bills = await Bill.findAll({
+      include: [{
+        model: Transit,
+        as: 'entrance',
+        where: {
+          id: {
+            [Op.in]: transits,
+          }
+        },
+      }]
+    });
+    return bills;
+  }
 }
 
+/*
+return await this.findAll({
+      include: [
+        {
+          model: Transit,
+          where: {
+            exit_transit: {
+              [Op.in]: transits,
+            },
+          }
+        }
+      ]}
+    )
+      */
 Bill.init(
   {
     id: {
@@ -67,7 +96,7 @@ Bill.init(
 );
 
 // Define the associations between Bill and Parcheggio & Transito (optional)
-Bill.belongsTo(Parking, { foreignKey: 'parking_id',onDelete: 'CASCADE' });
+Bill.belongsTo(Parking, { foreignKey: 'parking_id', onDelete: 'CASCADE' });
 Bill.belongsTo(Transit, { foreignKey: 'entrance_transit', as: 'entrance', onDelete: 'CASCADE' }); // Use alias for clarity
 Bill.belongsTo(Transit, { foreignKey: 'exit_transit', as: 'exit', onDelete: 'CASCADE' }); // Use alias for clarity
 

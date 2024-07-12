@@ -8,3 +8,7 @@ Controller da utilizzare
 - StatisticsController (2 operatore, 1 automobilista)
 
 Middleware controllo tipo di dato (controller di tipo)
+
+- Middleware per autorizzazione jwt 
+- Middleware che controlla se il body delle richieste sono in formato corretto
+- 

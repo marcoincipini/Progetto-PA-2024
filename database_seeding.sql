@@ -71,8 +71,7 @@ CREATE TABLE IF NOT EXISTS bills (
   entrance_transit INT NOT NULL, 
   exit_transit INT NOT NULL,
   FOREIGN KEY (entrance_transit) REFERENCES transits(id),
-  FOREIGN KEY (exit_transit
-) REFERENCES transits(id),
+  FOREIGN KEY (exit_transit) REFERENCES transits(id),
   FOREIGN KEY (parking_id) REFERENCES parkings(id)
 );
 

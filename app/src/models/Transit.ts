@@ -46,6 +46,7 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
       },
     });
   }
+
 }
 Transit.init(
   {

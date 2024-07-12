@@ -51,6 +51,15 @@ router.get('/api/transits', async (req: any, res: any) => {
     res.status(500).json({ error: error.message });
   }
 });
+router.get('/api/try', async (req: any, res: any) => {
+  try {
+    const tr = [1, 2, 3];
+    const transits = await Bill.findBillByTransits(tr);
+    res.json({ transits });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 /*
 router.get('/api/parkings/:id', authenticateJWT, ParkingCRUDController.getById);
 router.put('/api/parkings/:id', authenticateJWT, ParkingCRUDController.update);
