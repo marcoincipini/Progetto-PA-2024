@@ -7,15 +7,15 @@ const sequelize : Sequelize = DbConnections.getConnection();
 interface VehicleAttributes {
   plate: string;
   vehicle_type: string; // Use camelCase for property names
-  User_id: number;
+  user_id: number;
 }
 
-interface VehicleCreationAttributes extends Optional<VehicleAttributes, 'User_id'> {}
+interface VehicleCreationAttributes extends Optional<VehicleAttributes, 'user_id'> {}
 
 class Vehicle extends Model<VehicleAttributes, VehicleCreationAttributes> implements VehicleAttributes {
   public plate!: string;
   public vehicle_type!: string;
-  public User_id!: number;
+  public user_id!: number;
 
   static async getVehiclesUser(email: string): Promise<Vehicle[]> {
     try {
@@ -46,7 +46,7 @@ Vehicle.init(
       allowNull: false,
       field: 'vehicle_type', // Define the field name for the database column
     },
-    User_id: {
+    user_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -63,6 +63,6 @@ Vehicle.init(
 );
 
 // Define the association between Vehicle and User (optional)
-Vehicle.belongsTo(User, { foreignKey: 'User_id', onDelete: 'CASCADE' });
+Vehicle.belongsTo(User, { foreignKey: 'user_id', onDelete: 'CASCADE' });
 
 export default Vehicle;

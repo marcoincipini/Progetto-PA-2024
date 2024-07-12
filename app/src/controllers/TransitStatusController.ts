@@ -23,10 +23,14 @@ class TransitStatusController {
             //const role = req.locals.user.role;
             // Filtra per targhe solo se l'utente è un automobilista
             if (role == 'operatore' && plates.length > 0) {
+                console.log("sono un operatore");
                 const selectedTransits = await Transit.findByPlatesAndDateTimeRange(plates, startDate, endDate);
                 this.selectFormat(selectedTransits, req, res);
             } else if (role == 'automobilista' && plates.length > 0) {
-                if (this.checkPlates(plates, req, res)) {
+                console.log("sono un automobilista");
+                
+                if (await this.checkPlates(plates, req, res)) {
+                    console.log("sono una funzione");
                     const selectedTransits = Transit.findByPlatesAndDateTimeRange(plates, startDate, endDate);
                     this.selectFormat(await selectedTransits, req, res);
                 } else {
@@ -47,7 +51,7 @@ class TransitStatusController {
             return res.status(200).json({ transit });
         } else if (req.query.format === 'pdf') {
             const pdf = new PDFDocument();
-            pdf.text('Transits Report');
+            pdf.text('TRANSIT REPORT');
 
             transit.forEach((transit) => {
                 pdf.text(`Plate: ${transit.plate}`);
@@ -64,16 +68,26 @@ class TransitStatusController {
 
     async checkPlates(plates: string[], req: Request, res: Response): Promise<boolean> {
         const { email } = req.body.user;
-        const userPlates = await Vehicle.getVehiclesUser(email);
-
-        for (const vehicle of userPlates) {
-            if (!plates.includes(vehicle.plate)) {
-                return false;
-            }
-        }
-        return true;
+        const userPlat = await Vehicle.getVehiclesUser(email);
+        let userPlates: string[]=userPlat.map((item) => item.plate);
+        console.log(plates);
+        console.log(userPlates);
+        console.log(plates.every(elem => userPlates.includes(elem)));
+        return plates.every(elem => userPlates.includes(elem));
+       
     }
-    /*
+/*
+    async checkPlates(plates: string[], req: Request, res: Response): Promise<boolean> {
+        const { email } = req.body.user;
+        const userPlat = await Vehicle.getVehiclesUser(email);
+        let userPlates: string[]=[];
+        for (const key in userPlat) {
+            userPlates.concat(key.plate);
+        }
+        return plates.every(elem => userPlates.includes(elem));
+       
+    }
+    
     async checkPlates(req: Request, res: Response): Promise<Boolean> {
         const { plates } = req.query;
         const { email } = req.body.user;
