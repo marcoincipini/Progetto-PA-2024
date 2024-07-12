@@ -73,8 +73,9 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
         },
         {
             sequelize: sequelize,
+            paranoid:true,
             tableName: 'users',
-            timestamps: false,
+            deletedAt: 'destroyTime',
         }
     );
 

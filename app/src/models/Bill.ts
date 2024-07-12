@@ -90,8 +90,9 @@ Bill.init(
   },
   {
     sequelize: sequelize,
+    paranoid:true,
     tableName: 'bills',
-    timestamps: false,
+    deletedAt: 'destroyTime',
   }
 );
 

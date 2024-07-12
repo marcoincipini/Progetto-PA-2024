@@ -93,8 +93,9 @@ Transit.init(
   },
   {
     sequelize: sequelize,
+    paranoid:true,
     tableName: 'transits',
-    timestamps: false,
+    deletedAt: 'destroyTime',
   }
 );
 
