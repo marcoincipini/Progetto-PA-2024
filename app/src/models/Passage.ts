@@ -54,9 +54,8 @@ Passage.init(
   },
   {
     sequelize: sequelize,
-    paranoid:true,
     tableName: 'passages',
-    deletedAt: 'destroyTime',
+    timestamps: false,
   }
 );
 

@@ -66,9 +66,8 @@ Fee.init(
   },
   {
     sequelize: sequelize,
-    paranoid:true,
     tableName: 'fees',
-    deletedAt: 'destroyTime',
+    timestamps: false,
   }
 );
 

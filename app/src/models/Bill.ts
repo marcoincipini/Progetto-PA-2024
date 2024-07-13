@@ -22,11 +22,11 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
   public entrance_transit!: number;
   public exit_transit!: number;
 
-  static async findBillByEntranceTransits(transits: number[]): Promise<Bill[]> {
+  static async findBillByExitTransits(transits: number[]): Promise<Bill[]> {
     const bills = await Bill.findAll({
       include: [{
         model: Transit,
-        as: 'entrance',
+        as: 'exit',
         where: {
           id: {
             [Op.in]: transits,
@@ -90,9 +90,8 @@ Bill.init(
   },
   {
     sequelize: sequelize,
-    paranoid:true,
     tableName: 'bills',
-    deletedAt: 'destroyTime',
+    timestamps: false,
   }
 );
 

@@ -58,9 +58,8 @@ Parking.init(
   },
   {
     sequelize: sequelize,
-    paranoid:true,
     tableName: 'parkings',
-    deletedAt: 'destroyTime',
+    timestamps: false,
   }
 );
 

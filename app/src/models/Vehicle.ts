@@ -57,9 +57,8 @@ Vehicle.init(
   },
   {
     sequelize: sequelize,
-    paranoid:true,
     tableName: 'vehicles',
-    deletedAt: 'destroyTime',
+    timestamps: false,
   }
 );
 

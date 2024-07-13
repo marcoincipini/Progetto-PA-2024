@@ -18,6 +18,12 @@ interface TransitAttributes {
 interface TransitCreationAttributes extends Optional<TransitAttributes, 'id'> { }
 
 class Transit extends Model<TransitAttributes, TransitCreationAttributes> implements TransitAttributes {
+  find(arg0: (transito: { entrance_passage: number; vehicle_type: string; }) => boolean) {
+      throw new Error('Method not implemented.');
+  }
+  push(arg0: { entrance_passage: number; exit_passage: number; vehicle_type: string; amount: number; }) {
+      throw new Error('Method not implemented.');
+  }
   public id!: number;
   public passage_id!: number;
   public plate!: string;
@@ -93,9 +99,8 @@ Transit.init(
   },
   {
     sequelize: sequelize,
-    paranoid:true,
     tableName: 'transits',
-    deletedAt: 'destroyTime',
+    timestamps: false,
   }
 );
 

@@ -4,19 +4,20 @@ import Transit from '../models/Transit';
 import Vehicle from '../models/Vehicle';
 import Passage from '../models/Passage';
 import PDFDocument from 'pdfkit';
+import Bill from '../models/Bill';
 
 class TransitStatusController {
 
 
     async getTransits(req: Request, res: Response): Promise<Response> {
         try {
-             // Gestione dei parametri della query
-             let plates: string[] = [];
-             if (typeof req.query.plates === 'string') {
-                 plates = req.query.plates.split(',').map((plate: string) => plate.trim());
-             } else if (Array.isArray(req.query.plates)) {
-                 plates = (req.query.plates as string[]).map((plate: string) => plate.trim());
-             }
+            // Gestione dei parametri della query
+            let plates: string[] = [];
+            if (typeof req.query.plates === 'string') {
+                plates = req.query.plates.split(',').map((plate: string) => plate.trim());
+            } else if (Array.isArray(req.query.plates)) {
+                plates = (req.query.plates as string[]).map((plate: string) => plate.trim());
+            }
             const startDate = req.query.startDate as string;
             const endDate = req.query.endDate as string;
             const { role } = req.body.user;
@@ -24,11 +25,59 @@ class TransitStatusController {
             // Filtra per targhe solo se l'utente è un automobilista
             if (role == 'operatore' && plates.length > 0) {
                 console.log("sono un operatore");
-                const selectedTransits = await Transit.findByPlatesAndDateTimeRange(plates, startDate, endDate);
-                this.selectFormat(selectedTransits, req, res);
+                let selectedTransits = await Transit.findByPlatesAndDateTimeRange(plates, startDate, endDate);
+                const TransitID: number[] = selectedTransits.map((item) => item.id);
+                let fatture = await Bill.findBillByExitTransits(TransitID);
+                let transitiUscita: any[] = [];
+
+                // Crea una mappa dei transiti di uscita per un accesso più rapido
+                const transitsMap = new Map(selectedTransits.map(transito => [transito.id, transito]));
+
+                // Popola l'array transitiUscita con tutti i transiti
+                for (const transit of selectedTransits) {
+                    transitiUscita.push({
+                        transit_id: transit.id,
+                        passage_id: transit.passage_id,
+                        plate: transit.plate,
+                        passing_by_date: transit.passing_by_date,
+                        passing_by_hour: transit.passing_by_hour,
+                        direction: transit.direction,
+                        vehicle_type: transit.vehicle_type,
+                        entrance_passage: transit.passage_id,
+                        exit_passage: null,
+                        amount: null
+                    });
+                }
+
+                // Aggiorna l'array transitiUscita con le informazioni delle fatture
+                for (const bill of fatture) {
+                    const exitTransit = transitsMap.get(bill.exit_transit);
+                    if (exitTransit) {
+                        // Trova il transito corrispondente nell'array transitiUscita
+                        const existingTransit = transitiUscita.find(transito => transito.entrance_passage === bill.entrance_transit && transito.vehicle_type === exitTransit.vehicle_type);
+                        if (existingTransit) {
+                            existingTransit.exit_passage = bill.exit_transit;
+                            existingTransit.amount = bill.amount;
+                        } else {
+                            transitiUscita.push({
+                                transit_id: bill.entrance_transit,
+                                passage_id: exitTransit.passage_id,
+                                plate: exitTransit.plate,
+                                passing_by_date: exitTransit.passing_by_date,
+                                passing_by_hour: exitTransit.passing_by_hour,
+                                direction: exitTransit.direction,
+                                vehicle_type: exitTransit.vehicle_type,
+                                entrance_passage: bill.entrance_transit,
+                                exit_passage: bill.exit_transit,
+                                amount: bill.amount
+                            });
+                        }
+                    }
+                }
+                return this.selectFormat(transitiUscita, req, res);
             } else if (role == 'automobilista' && plates.length > 0) {
                 console.log("sono un automobilista");
-                
+
                 if (await this.checkPlates(plates, req, res)) {
                     console.log("sono una funzione");
                     const selectedTransits = Transit.findByPlatesAndDateTimeRange(plates, startDate, endDate);
@@ -36,9 +85,6 @@ class TransitStatusController {
                 } else {
                     res.status(400).json({ message: 'utente non autorizzato' });
                 }
-
-            } else {
-                res.status(400).json({ message: 'ruolo non specificato' });
             }
         } catch (error) {
             console.error('Error retrieving transits:', error);
@@ -69,39 +115,39 @@ class TransitStatusController {
     async checkPlates(plates: string[], req: Request, res: Response): Promise<boolean> {
         const { email } = req.body.user;
         const userPlat = await Vehicle.getVehiclesUser(email);
-        let userPlates: string[]=userPlat.map((item) => item.plate);
+        let userPlates: string[] = userPlat.map((item) => item.plate);
         console.log(plates);
         console.log(userPlates);
         console.log(plates.every(elem => userPlates.includes(elem)));
         return plates.every(elem => userPlates.includes(elem));
-       
+
     }
-/*
-    async checkPlates(plates: string[], req: Request, res: Response): Promise<boolean> {
-        const { email } = req.body.user;
-        const userPlat = await Vehicle.getVehiclesUser(email);
-        let userPlates: string[]=[];
-        for (const key in userPlat) {
-            userPlates.concat(key.plate);
+    /*
+        async checkPlates(plates: string[], req: Request, res: Response): Promise<boolean> {
+            const { email } = req.body.user;
+            const userPlat = await Vehicle.getVehiclesUser(email);
+            let userPlates: string[]=[];
+            for (const key in userPlat) {
+                userPlates.concat(key.plate);
+            }
+            return plates.every(elem => userPlates.includes(elem));
+           
         }
-        return plates.every(elem => userPlates.includes(elem));
-       
-    }
-    
-    async checkPlates(req: Request, res: Response): Promise<Boolean> {
-        const { plates } = req.query;
-        const { email } = req.body.user;
-        const userPlates = Vehicle.getVehiclesUser(email);
-        (await userPlates).forEach((vehicle) => {
-            plates.forEach((plates: string) => {
-                if (vehicle.plate != plates) {
-                    return false;
-                }
+        
+        async checkPlates(req: Request, res: Response): Promise<Boolean> {
+            const { plates } = req.query;
+            const { email } = req.body.user;
+            const userPlates = Vehicle.getVehiclesUser(email);
+            (await userPlates).forEach((vehicle) => {
+                plates.forEach((plates: string) => {
+                    if (vehicle.plate != plates) {
+                        return false;
+                    }
+                })
             })
-        })
-        return true;
-    }
-        */
+            return true;
+        }
+            */
 }
 
 export default new TransitStatusController();
