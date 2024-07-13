@@ -6,6 +6,7 @@ import TransitStatusController from './controllers/TransitStatusController';
 import { DbConnections } from "./models/DbConnections";
 import { login } from './controllers/LoginController';
 import { authenticateJWT } from './middleware/auth';
+import GeneralParkingController from './controllers/GeneralParkingController';
 //import { checkRole } from './middleware/check';
 import Parking from './models/Parking';
 import User from './models/User';
@@ -50,11 +51,14 @@ router.get('/api/transits', async (req: any, res: any) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});/*
+});
+router.get('/api/try', (req: any, res: any) => GeneralParkingController.getAverageFreeSpots (req, res));
+/*
 router.get('/api/try', async (req: any, res: any) => {
   try {
     const tr = [1, 2, 3];
-    const transits = await Bill.findBillByTransits(tr);
+    const transits = await Bill.findByDateTimeRange('2023-03-12 10:50:54',
+      '2025-06-15 07:15:32');
     res.json({ transits });
   } catch (error) {
     res.status(500).json({ error: error.message });

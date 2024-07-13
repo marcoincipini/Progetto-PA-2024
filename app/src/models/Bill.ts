@@ -36,6 +36,27 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
     });
     return bills;
   }
+  static async findByDateTimeRange(
+    startDateTime: string,
+    endDateTime: string
+  ): Promise<Bill[]> {
+    return this.findAll({
+      include: [{
+        model: Transit,
+        as: 'exit',
+        where: {
+          [Op.and]: [
+            sequelize.where(
+              sequelize.fn('CONCAT', sequelize.col('passing_by_date'), ' ', sequelize.col('passing_by_hour')),
+              {
+                [Op.between]: [startDateTime, endDateTime],
+              }
+            ),
+          ],
+        },
+      }]
+    });
+  }
 }
 
 /*

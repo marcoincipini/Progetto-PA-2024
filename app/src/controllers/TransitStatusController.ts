@@ -28,53 +28,40 @@ class TransitStatusController {
                 let selectedTransits = await Transit.findByPlatesAndDateTimeRange(plates, startDate, endDate);
                 const TransitID: number[] = selectedTransits.map((item) => item.id);
                 let fatture = await Bill.findBillByExitTransits(TransitID);
-                let transitiUscita: any[] = [];
-
-                // Crea una mappa dei transiti di uscita per un accesso più rapido
-                const transitsMap = new Map(selectedTransits.map(transito => [transito.id, transito]));
+                let exitTransitList: any[] = [];
 
                 // Popola l'array transitiUscita con tutti i transiti
                 for (const transit of selectedTransits) {
-                    transitiUscita.push({
-                        transit_id: transit.id,
-                        passage_id: transit.passage_id,
-                        plate: transit.plate,
-                        passing_by_date: transit.passing_by_date,
-                        passing_by_hour: transit.passing_by_hour,
-                        direction: transit.direction,
-                        vehicle_type: transit.vehicle_type,
-                        entrance_passage: transit.passage_id,
-                        exit_passage: null,
-                        amount: null
-                    });
-                }
-
-                // Aggiorna l'array transitiUscita con le informazioni delle fatture
-                for (const bill of fatture) {
-                    const exitTransit = transitsMap.get(bill.exit_transit);
-                    if (exitTransit) {
-                        // Trova il transito corrispondente nell'array transitiUscita
-                        const existingTransit = transitiUscita.find(transito => transito.entrance_passage === bill.entrance_transit && transito.vehicle_type === exitTransit.vehicle_type);
-                        if (existingTransit) {
-                            existingTransit.exit_passage = bill.exit_transit;
-                            existingTransit.amount = bill.amount;
-                        } else {
-                            transitiUscita.push({
-                                transit_id: bill.entrance_transit,
-                                passage_id: exitTransit.passage_id,
-                                plate: exitTransit.plate,
-                                passing_by_date: exitTransit.passing_by_date,
-                                passing_by_hour: exitTransit.passing_by_hour,
-                                direction: exitTransit.direction,
-                                vehicle_type: exitTransit.vehicle_type,
-                                entrance_passage: bill.entrance_transit,
-                                exit_passage: bill.exit_transit,
-                                amount: bill.amount
-                            });
-                        }
+                    if (transit.direction == 'E') {
+                        exitTransitList.push({
+                            transit_id: transit.id,
+                            plate: transit.plate,
+                            passing_by_date: transit.passing_by_date,
+                            passing_by_hour: transit.passing_by_hour,
+                            direction: transit.direction,
+                            vehicle_type: transit.vehicle_type,
+                            entrance_passage: transit.passage_id,
+                            exit_passage: null,
+                            amount: null
+                        });
                     }
                 }
-                return this.selectFormat(transitiUscita, req, res);
+                // Aggiorna l'array transitiUscita con le informazioni delle fatture
+                for (const bill of fatture) {
+                    const exitTransit: Transit = selectedTransits.find(tran => tran.id === bill.exit_transit);
+                    exitTransitList.push({
+                        transit_id: bill.exit_transit,
+                        plate: exitTransit.plate,
+                        passing_by_date: exitTransit.passing_by_date,
+                        passing_by_hour: exitTransit.passing_by_hour,
+                        direction: exitTransit.direction,
+                        vehicle_type: exitTransit.vehicle_type,
+                        entrance_transit: bill.entrance_transit,
+                        exit_passage: exitTransit.passage_id,
+                        amount: bill.amount
+                    });
+                }
+                return this.selectFormat(exitTransitList, req, res);
             } else if (role == 'automobilista' && plates.length > 0) {
                 console.log("sono un automobilista");
 

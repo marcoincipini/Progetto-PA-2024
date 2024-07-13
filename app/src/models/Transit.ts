@@ -53,6 +53,23 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
     });
   }
 
+  static async findByDateRange(startDate: string, endDate: string, parkingId: number) {
+    return await Transit.findAll({
+      include: [
+        {
+          model: Passage,
+          where: { parking_id: parkingId },
+          attributes: [] // Non includere gli attributi del modello Passage nei risultati
+        }
+      ],
+      where: {
+        passing_by_date: {
+          [Op.between]: [startDate, endDate]
+        }
+      }
+    });
+  }
+
 }
 Transit.init(
   {
