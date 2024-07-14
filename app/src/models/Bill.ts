@@ -57,6 +57,7 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
       }]
     });
   }
+
   static async findBillsOutsideRange(startDateTime: string, endDateTime: string): Promise<Bill[]> {
     return this.findAll({
       include: [
