@@ -52,7 +52,7 @@ router.get('/api/transits', async (req: any, res: any) => {
     res.status(500).json({ error: error.message });
   }
 });
-router.get('/api/try', (req: any, res: any) => GeneralParkingController.getAverageFreeSpots (req, res));
+router.get('/api/try', (req: any, res: any) => GeneralParkingController.media(req, res));
 /*
 router.get('/api/try', async (req: any, res: any) => {
   try {

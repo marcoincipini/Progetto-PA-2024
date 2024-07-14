@@ -29,6 +29,75 @@ class GeneralParkingController{
           }
           return res.status(200).json({ parkings });
     }
+    
+    async media(req: Request, res: Response): Promise<Response> {
+      const startDate = req.query.startDate as string;
+      const endDate = req.query.endDate as string;
+
+      // Creo le strutture
+      let matriceOccupazione: number[][]=[];
+      const t = await Parking.findAll();
+      const nparcheggio:number = t.length;
+      // Calcolo numero di intervalli
+      let inizio: Date = new Date(startDate);
+      let fine: Date = new Date(endDate);
+      let numerointervalli:number=0;
+      inizio.setHours(inizio.getHours()+1);
+      while (inizio < fine) {
+        numerointervalli += 1;
+        inizio.setHours(inizio.getHours()+1);
+      }
+      console.log(numerointervalli);
+      // Create the matrix with all elements initialized to 0
+      matriceOccupazione = Array.from({ length: nparcheggio }, () => new Array(numerointervalli).fill(0));
+
+
+      // Ricerca nelle fatture
+      let fatture = await Bill.findBillsOutsideRange(startDate,endDate);
+      for (const bill of fatture) {
+        for (let i = 0; i < numerointervalli; i++) {
+          matriceOccupazione[bill.parking_id - 1][i] += 1;        
+        }
+      }
+      // Ricerca nei transiti
+      let transiti = await Transit.findByDateRange(startDate,endDate);
+      for (const tran of transiti) {
+        let collegati = transiti.filter(elem => elem.plate === tran.plate);
+        if(collegati){
+          // caso ingresso uscita
+        }else{
+          if (tran.direction == 'E') {
+            let inizio: Date = new Date(startDate);
+            let ntemp:number=0;
+            let dataingresso: Date = new Date(tran.passing_by_date+tran.passing_by_hour);
+            inizio.setHours(inizio.getHours()+1);
+            while (inizio < dataingresso) {
+              ntemp += 1;
+              inizio.setHours(inizio.getHours()+1);
+            }
+            while (dataingresso < fine) {
+              matriceOccupazione[tran.passage?.parking_id][ntemp] += 1;
+
+              ntemp += 1;
+              inizio.setHours(inizio.getHours()+1);
+            }
+          } else {
+            let inizio: Date = new Date(startDate);
+            let ntemp:number=0;
+            let dataingresso: Date = new Date(tran.passing_by_date+tran.passing_by_hour);
+            inizio.setHours(inizio.getHours()+1);
+            while (inizio < dataingresso) {
+              matriceOccupazione[tran.passage?.parking_id][ntemp] += 1;
+
+              ntemp += 1;
+              inizio.setHours(inizio.getHours()+1);
+            }
+          }
+        }
+      }
+      return res.status(200).json(matriceOccupazione);
+
+    }
 
     async getAverageFreeSpots(req: Request, res: Response): Promise<Response> {
         try {
@@ -51,7 +120,7 @@ class GeneralParkingController{
               const dayStart = parking.day_starting_hour;
               const dayEnd = parking.day_finishing_hour;
       
-              const transits = await Transit.findByDateRange(startDate, endDate, parking.id);
+              const transits = await Transit.findByDateRange(startDate, endDate);
       
               let dayOccupiedSpots = 0;
               let nightOccupiedSpots = 0;
