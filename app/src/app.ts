@@ -4,7 +4,7 @@ import { Sequelize } from 'sequelize';
 import CRUDController from './controllers/CRUDController';
 import TransitStatusController from './controllers/TransitStatusController';
 import { DbConnections } from "./models/DbConnections";
-import { login } from './controllers/LoginController';
+import { login, passageLogin } from './controllers/LoginController';
 import { authenticateJWT } from './middleware/auth';
 import GeneralParkingController from './controllers/GeneralParkingController';
 //import { checkRole } from './middleware/check';
@@ -30,6 +30,7 @@ async () => {
 };
 
 router.post('/login', login);
+router.post('/passageLogin', passageLogin);
 // Endpoint per ottenere tutti gli utenti
 //router.get('/api/users', authenticateJWT, User.getUsers);
 // CRUD generico per Parking
@@ -52,7 +53,7 @@ router.get('/api/transits', async (req: any, res: any) => {
     res.status(500).json({ error: error.message });
   }
 });
-router.get('/api/try', (req: any, res: any) => GeneralParkingController.getAverageFreeSpots (req, res));
+router.get('/api/try', (req: any, res: any) => GeneralParkingController.getStatistics (req, res));
 /*
 router.get('/api/try', async (req: any, res: any) => {
   try {

@@ -53,13 +53,13 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
     });
   }
 
-  static async findByDateRange(startDate: string, endDate: string, parkingId: number) {
+  static async findByDateRange(startDate: string, endDate: string): Promise<any[]> {
     return await Transit.findAll({
       include: [
         {
           model: Passage,
-          where: { parking_id: parkingId },
-          attributes: [] // Non includere gli attributi del modello Passage nei risultati
+          as: 'passage',
+          attributes: ['parking_id'] // Non includere gli attributi del modello Passage nei risultati
         }
       ],
       where: {
@@ -122,7 +122,7 @@ Transit.init(
 );
 
 // Define the associations between Transit and Passage & Vehicle (optional)
-Transit.belongsTo(Passage, { foreignKey: 'passage_id' });
+Transit.belongsTo(Passage, { foreignKey: 'passage_id', as: 'passage' });
 Transit.belongsTo(Vehicle, { foreignKey: 'plate' });
 
 export default Transit;
