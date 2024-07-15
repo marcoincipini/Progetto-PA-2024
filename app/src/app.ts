@@ -1,44 +1,54 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 import { Sequelize } from 'sequelize';
-import CRUDController from './controllers/CRUDController';
-import TransitStatusController from './controllers/TransitStatusController';
+
 import { DbConnections } from "./models/DbConnections";
-import { login, passageLogin } from './controllers/LoginController';
-import { authenticateJWT } from './middleware/auth';
-import GeneralParkingController from './controllers/GeneralParkingController';
-//import { checkRole } from './middleware/check';
 import Parking from './models/Parking';
 import User from './models/User';
 import Fee from './models/Fee';
 import Bill from './models/Bill';
 import Transit from './models/Transit';
 import Passage from './models/Passage';
+
+import CRUDController from './controllers/CRUDController';
+import TransitStatusController from './controllers/TransitStatusController';
+import loginController from './controllers/LoginController';
+import GeneralParkingController from './controllers/GeneralParkingController';
+
+import authMiddleware from './middleware/auth';
+import globalCheck from './middleware/check'
+import validateData from './middleware/validateData';
+import routerApp from './routes/routes';
+import * as middlewareErrorHandler from './middleware/generalErrorMiddleware'
+
+import { errorFactory  } from './factory/ErrorMessage';
+import { Error } from './factory/Status'
+//import { checkRole } from './middleware/check';
+
 dotenv.config();
 
 const router = express.Router();
-
+const app = express();
+const PORT = process.env.PORT || 3000;
 const connection: Sequelize = DbConnections.getConnection();
 
 async () => {
   try {
-      await connection.authenticate();
-      console.log('Connection has been established successfully.');
+    await connection.authenticate();
+    console.log('Connection has been established successfully.');
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
 };
 
-router.post('/login', login);
-router.post('/passageLogin', passageLogin);
-// Endpoint per ottenere tutti gli utenti
-//router.get('/api/users', authenticateJWT, User.getUsers);
-// CRUD generico per Parking
-router.post('/api/users', authenticateJWT, (req: any, res: any) => CRUDController.createRecord(User, req, res));
-router.get('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.GetRecord(User, req, res));
-router.put('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.UpdateRecord(User, req, res));
-router.delete('/api/users/:id', authenticateJWT, (req: any, res: any) => CRUDController.DeleteRecord(User, req, res));
-router.get('/api/trans', authenticateJWT, (req: any, res: any) => TransitStatusController.getTransits(req, res));
+// Middleware per il parsing del corpo della richiesta
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Usa le rotte definite nel router
+app.use(router);
+app.use(routerApp);
+router.get('/api/trans', authMiddleware.authenticateJWT, authMiddleware.isOperator, (req: any, res: any) => TransitStatusController.getTransits(req, res));
 
 
 router.get('/api/transits', async (req: any, res: any) => {
@@ -53,7 +63,11 @@ router.get('/api/transits', async (req: any, res: any) => {
     res.status(500).json({ error: error.message });
   }
 });
-router.get('/api/try', (req: any, res: any) => GeneralParkingController.getStatistics (req, res));
+//router.get('/api/try', (req: any, res: any) => GeneralParkingController.getStats (req, res));
+app.get('/api/try', (req: Request, res: Response) => {
+  // Chiamata al metodo getStats del controller
+  GeneralParkingController.getStatistics(req, res);
+});
 /*
 router.get('/api/try', async (req: any, res: any) => {
   try {
@@ -76,18 +90,13 @@ router.get('/api/bills', authenticateJWT, BillController.getBills);
 router.get('/api/fees', authenticateJWT, FeeController.getFees);
 */
 
+//all other requests (from all methods) that are not the ones implemented above return 404 not found error
+app.all('*', middlewareErrorHandler.routeNotFound);
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+//management of an error handler in the middleware chain
+app.use(middlewareErrorHandler.generalErrorHandler);
 
-// Middleware per il parsing del corpo della richiesta
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Usa le rotte definite nel router
-app.use(router);
-
-// Avvia il server
+// Server start
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

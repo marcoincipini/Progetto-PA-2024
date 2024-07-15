@@ -2,7 +2,7 @@ import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
 import { DbConnections } from './DbConnections';
 import Parking from './Parking'; // Assuming Parcheggio model is defined in a separate file
 
-const sequelize : Sequelize = DbConnections.getConnection();
+const sequelize: Sequelize = DbConnections.getConnection();
 
 interface FeeAttributes {
   id: number;
@@ -12,9 +12,10 @@ interface FeeAttributes {
   vehicle_type: string;
   night: boolean;
   festive: boolean;
+  deletedAt?: Date; // Optional deletedAt attribute for paranoid
 }
 
-interface FeeCreationAttributes extends Optional<FeeAttributes, 'id'> {}
+interface FeeCreationAttributes extends Optional<FeeAttributes, 'id'> { }
 
 class Fee extends Model<FeeAttributes, FeeCreationAttributes> implements FeeAttributes {
   public id!: number;
@@ -24,6 +25,7 @@ class Fee extends Model<FeeAttributes, FeeCreationAttributes> implements FeeAttr
   public vehicle_type!: string;
   public night!: boolean;
   public festive!: boolean;
+  public deletedAt?: Date; // Optional deletedAt attribute for paranoids
 }
 
 Fee.init(
@@ -67,7 +69,10 @@ Fee.init(
   {
     sequelize: sequelize,
     tableName: 'fees',
-    timestamps: false,
+    paranoid: true, // Enable soft delete
+    createdAt: false, // Disable createdAt since we are not using it
+    updatedAt: false, // Disable updatedAt since we are not using it
+    deletedAt: 'deleted_at', // Specify the field name for the deletedAt attribute
   }
 );
 

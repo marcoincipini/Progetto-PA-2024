@@ -10,7 +10,7 @@ interface UserAttributes {
     email: string;
     password: string;
     role: string;
-    token: number;
+    deletedAt?: Date; // Optional deletedAt attribute for paranoid
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> { }
@@ -22,7 +22,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
     public email!: string;
     public password!: string;
     public role!: string;
-    public token!: number;
+    public deletedAt?: Date; // Optional deletedAt attribute for paranoid
     //get user data
     static async getUserData(userEmail:string): Promise<User | null> {
         
@@ -66,15 +66,19 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            token: {
-                type: DataTypes.REAL,
+            deletedAt: {
+                type: DataTypes.DATE,
                 allowNull: true,
-            },
+                field: 'deleted_at', // Define the field name for the database column
+              },
         },
         {
             sequelize: sequelize,
             tableName: 'users',
-            timestamps: false,
+            paranoid: true, // Enable soft delete
+            createdAt: false, // Disable createdAt since we are not using it
+            updatedAt: false, // Disable updatedAt since we are not using it
+            deletedAt: 'deleted_at', // Specify the field name for the deletedAt attribute
         }
     );
 
