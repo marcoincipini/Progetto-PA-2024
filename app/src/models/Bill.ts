@@ -11,6 +11,7 @@ interface BillAttributes {
   amount: number;
   entrance_transit: number;
   exit_transit: number;
+  deletedAt?: Date; // Optional deletedAt attribute for paranoid
 }
 
 interface BillCreationAttributes extends Optional<BillAttributes, 'id'> { }
@@ -21,6 +22,7 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
   public amount!: number;
   public entrance_transit!: number;
   public exit_transit!: number;
+  public deletedAt?: Date; // Optional deletedAt attribute for paranoid
 
   static async findBillByExitTransits(transits: number[]): Promise<Bill[]> {
     const bills = await Bill.findAll({
@@ -147,7 +149,10 @@ Bill.init(
   {
     sequelize: sequelize,
     tableName: 'bills',
-    timestamps: false,
+    paranoid: true, // Enable soft delete
+    createdAt: false, // Disable createdAt since we are not using it
+    updatedAt: false, // Disable updatedAt since we are not using it
+    deletedAt: 'deleted_at', // Specify the field name for the deletedAt attribute
   }
 );
 

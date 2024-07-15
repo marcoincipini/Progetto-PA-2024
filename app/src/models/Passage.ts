@@ -2,7 +2,7 @@ import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
 import { DbConnections } from './DbConnections';
 import Parking from './Parking';
 
-const sequelize : Sequelize = DbConnections.getConnection();
+const sequelize: Sequelize = DbConnections.getConnection();
 
 interface PassageAttributes {
   id: number;
@@ -10,9 +10,10 @@ interface PassageAttributes {
   name: string;
   entrance: boolean;
   exit: boolean;
+  deletedAt?: Date; // Optional deletedAt attribute for paranoid
 }
 
-interface PassageCreationAttributes extends Optional<PassageAttributes, 'id'> {}
+interface PassageCreationAttributes extends Optional<PassageAttributes, 'id'> { }
 
 class Passage extends Model<PassageAttributes, PassageCreationAttributes> implements PassageAttributes {
   public id!: number;
@@ -20,6 +21,7 @@ class Passage extends Model<PassageAttributes, PassageCreationAttributes> implem
   public name!: string;
   public entrance!: boolean;
   public exit!: boolean;
+  public deletedAt?: Date; // Optional deletedAt attribute for paranoid
 }
 
 Passage.init(
@@ -55,7 +57,10 @@ Passage.init(
   {
     sequelize: sequelize,
     tableName: 'passages',
-    timestamps: false,
+    paranoid: true, // Enable soft delete
+    createdAt: false, // Disable createdAt since we are not using it
+    updatedAt: false, // Disable updatedAt since we are not using it
+    deletedAt: 'deleted_at', // Specify the field name for the deletedAt attribute
   }
 );
 

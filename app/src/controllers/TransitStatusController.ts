@@ -5,6 +5,8 @@ import Vehicle from '../models/Vehicle';
 import Passage from '../models/Passage';
 import PDFDocument from 'pdfkit';
 import Bill from '../models/Bill';
+import { errorFactory  } from '../factory/ErrorMessage';
+import { Error } from '../factory/Status'
 
 class TransitStatusController {
 
@@ -18,10 +20,12 @@ class TransitStatusController {
             } else if (Array.isArray(req.query.plates)) {
                 plates = (req.query.plates as string[]).map((plate: string) => plate.trim());
             }
+
             const startDate = req.query.startDate as string;
             const endDate = req.query.endDate as string;
             const { role } = req.body.user;
             //const role = req.locals.user.role;
+
             // Filtra per targhe solo se l'utente è un automobilista
             if (role == 'operatore' && plates.length > 0) {
                 console.log("sono un operatore");
@@ -46,6 +50,7 @@ class TransitStatusController {
     }
 
     async collectTransitsAndBills(plates: string[], startDate: string, endDate: string) {
+
         let selectedTransits = await Transit.findByPlatesAndDateTimeRange(plates, startDate, endDate);
         const TransitID: number[] = selectedTransits.map((item) => item.id);
         let fatture = await Bill.findBillByExitTransits(TransitID);

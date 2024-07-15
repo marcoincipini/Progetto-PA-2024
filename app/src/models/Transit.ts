@@ -13,17 +13,13 @@ interface TransitAttributes {
   passing_by_hour: string; // Use appropriate data types
   direction: string;
   vehicle_type: string;
+  deletedAt?: Date; // Optional deletedAt attribute for paranoid
 }
 
 interface TransitCreationAttributes extends Optional<TransitAttributes, 'id'> { }
 
 class Transit extends Model<TransitAttributes, TransitCreationAttributes> implements TransitAttributes {
-  find(arg0: (transito: { entrance_passage: number; vehicle_type: string; }) => boolean) {
-      throw new Error('Method not implemented.');
-  }
-  push(arg0: { entrance_passage: number; exit_passage: number; vehicle_type: string; amount: number; }) {
-      throw new Error('Method not implemented.');
-  }
+
   public id!: number;
   public passage_id!: number;
   public plate!: string;
@@ -31,6 +27,7 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
   public passing_by_hour!: string;
   public direction!: string;
   public vehicle_type!: string;
+  public deletedAt?: Date; // Optional deletedAt attribute for paranoid
   static async findByPlatesAndDateTimeRange(
     plates: string[],
     startDateTime: string,
@@ -117,7 +114,10 @@ Transit.init(
   {
     sequelize: sequelize,
     tableName: 'transits',
-    timestamps: false,
+    paranoid: true, // Enable soft delete
+    createdAt: false, // Disable createdAt since we are not using it
+    updatedAt: false, // Disable updatedAt since we are not using it
+    deletedAt: 'deleted_at', // Specify the field name for the deletedAt attribute
   }
 );
 

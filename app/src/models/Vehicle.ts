@@ -2,20 +2,22 @@ import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
 import { DbConnections } from './DbConnections';
 import User from './User'; // Assuming User model is defined in a separate file (better naming convention)
 
-const sequelize : Sequelize = DbConnections.getConnection();
+const sequelize: Sequelize = DbConnections.getConnection();
 
 interface VehicleAttributes {
   plate: string;
   vehicle_type: string; // Use camelCase for property names
   user_id: number;
+  deletedAt?: Date; // Optional deletedAt attribute for paranoid
 }
 
-interface VehicleCreationAttributes extends Optional<VehicleAttributes, 'user_id'> {}
+interface VehicleCreationAttributes extends Optional<VehicleAttributes, 'user_id'> { }
 
 class Vehicle extends Model<VehicleAttributes, VehicleCreationAttributes> implements VehicleAttributes {
   public plate!: string;
   public vehicle_type!: string;
   public user_id!: number;
+  public deletedAt?: Date; // Optional deletedAt attribute for paranoid
 
   static async getVehiclesUser(email: string): Promise<Vehicle[]> {
     try {
@@ -58,7 +60,10 @@ Vehicle.init(
   {
     sequelize: sequelize,
     tableName: 'vehicles',
-    timestamps: false,
+    paranoid: true, // Enable soft delete
+    createdAt: false, // Disable createdAt since we are not using it
+    updatedAt: false, // Disable updatedAt since we are not using it
+    deletedAt: 'deleted_at', // Specify the field name for the deletedAt attribute
   }
 );
 

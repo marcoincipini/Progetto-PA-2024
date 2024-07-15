@@ -1,7 +1,7 @@
 import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
 import { DbConnections } from './DbConnections';
 
-const sequelize : Sequelize = DbConnections.getConnection();
+const sequelize: Sequelize = DbConnections.getConnection();
 
 interface ParkingAttributes {
   id: number;
@@ -10,9 +10,10 @@ interface ParkingAttributes {
   occupied_spots: number;
   day_starting_hour: string; // Use appropriate data type for time
   day_finishing_hour: string; // Use appropriate data type for time
+  deletedAt?: Date; // Optional deletedAt attribute for paranoid
 }
 
-interface ParkingCreationAttributes extends Optional<ParkingAttributes, 'id'> {}
+interface ParkingCreationAttributes extends Optional<ParkingAttributes, 'id'> { }
 
 class Parking extends Model<ParkingAttributes, ParkingCreationAttributes> implements ParkingAttributes {
   public id!: number;
@@ -21,6 +22,7 @@ class Parking extends Model<ParkingAttributes, ParkingCreationAttributes> implem
   public occupied_spots!: number;
   public day_starting_hour!: string;
   public day_finishing_hour!: string;
+  public deletedAt?: Date; // Optional deletedAt attribute for paranoid
 }
 
 
@@ -59,7 +61,10 @@ Parking.init(
   {
     sequelize: sequelize,
     tableName: 'parkings',
-    timestamps: false,
+    paranoid: true, // Enable soft delete
+    createdAt: false, // Disable createdAt since we are not using it
+    updatedAt: false, // Disable updatedAt since we are not using it
+    deletedAt: 'deleted_at', // Specify the field name for the deletedAt attribute
   }
 );
 

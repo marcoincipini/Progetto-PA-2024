@@ -7,156 +7,155 @@ import PDFDocument from 'pdfkit';
 import Bill from '../models/Bill';
 import Parking from '../models/Parking';
 
-class GeneralParkingController{
-    async getStatistics(req:Request, res:Response):Promise<Response>{
+type timeline = {
+    index: number;
+    hour: number;
+};
+
+type average = {
+    parking_id: number;
+    time_slot: string;
+    average_vacancies: number;
+};
+
+type Parkings = {
+    id: number;
+    sum: number;
+};
+
+class GeneralParkingController {
+
+    async getRevenues(req: Request, res: Response): Promise<Response> {
         const startDate = req.query.startDate as string;
         const endDate = req.query.endDate as string;
-        
+
         let selectedBill = await Bill.findByDateTimeRange(startDate, endDate);
-        type Parkings = {
-            id: number;
-            sum: number;
-          };
-          let parkings: Parkings[] = [];
-          for(const bill of selectedBill){
-           let selectedParkings = parkings.find((park) => park.id === bill.parking_id);
-            if(selectedParkings ){
+        
+        let parkings: Parkings[] = [];
+        for (const bill of selectedBill) {
+            let selectedParkings = parkings.find((parking) => parking.id === bill.parking_id);
+            if (selectedParkings) {
                 selectedParkings.sum += parseFloat(bill.amount as unknown as string);
 
-            }else{
-                parkings.push({id: bill.parking_id, sum: parseFloat(bill.amount as unknown as string)});
+            } else {
+                parkings.push({ id: bill.parking_id, sum: parseFloat(bill.amount as unknown as string) });
             }
-          }
-          return res.status(200).json({ parkings });
+        }
+        return this.selectFormatAverageRevenue(parkings, req, res);
     }
-    
-    async media(req: Request, res: Response): Promise<Response> {
-      const startDate = req.query.startDate as string;
-      const endDate = req.query.endDate as string;
 
-      // Creo le strutture
-      let matriceOccupazione: number[][]=[];
-      const t = await Parking.findAll();
-      const nparcheggio:number = t.length;
-      // Calcolo numero di intervalli
-      let inizio: Date = new Date(startDate);
-      let fine: Date = new Date(endDate);
-      let numerointervalli:number=0;
-      inizio.setHours(inizio.getHours()+1);
-      while (inizio < fine) {
-        numerointervalli += 1;
-        inizio.setHours(inizio.getHours()+1);
-      }
-      console.log(numerointervalli);
-      // Create the matrix with all elements initialized to 0
-      matriceOccupazione = Array.from({ length: nparcheggio }, () => new Array(numerointervalli).fill(0));
+    async averageVacanciesCalculator(req: Request, res: Response): Promise<Response> {
+        const startDate = req.query.startDate as string;
+        const endDate = req.query.endDate as string;
+        let start_time: Date = new Date(startDate);
+        let end_time: Date = new Date(endDate);
 
+        let vacancies_matrix: number[][] = [];
 
-      // Ricerca nelle fatture
-      let fatture = await Bill.findBillsOutsideRange(startDate,endDate);
-      for (const bill of fatture) {
-        for (let i = 0; i < numerointervalli; i++) {
-          matriceOccupazione[bill.parking_id - 1][i] += 1;        
+        let step_counter: number = 0;
+
+        let matrix_timeline: timeline[] = [];
+
+        let average_res: average[][] = [];
+
+        const parkings = await Parking.findAll();
+        const parkings_number: number = parkings.length;
+
+        start_time.setHours(start_time.getHours() + 1);
+        while (start_time < end_time) {
+            matrix_timeline.push({ index: step_counter, hour: start_time.getHours() })
+            step_counter += 1;
+            start_time.setHours(start_time.getHours() + 1);
         }
-      }
-      // Ricerca nei transiti
-      let transiti = await Transit.findByDateRange(startDate,endDate);
-      for (const tran of transiti) {
-        let collegati = transiti.filter(elem => elem.plate === tran.plate);
-        if(collegati){
-          // caso ingresso uscita
-        }else{
-          if (tran.direction == 'E') {
-            let inizio: Date = new Date(startDate);
-            let ntemp:number=0;
-            let dataingresso: Date = new Date(tran.passing_by_date+tran.passing_by_hour);
-            inizio.setHours(inizio.getHours()+1);
-            while (inizio < dataingresso) {
-              ntemp += 1;
-              inizio.setHours(inizio.getHours()+1);
-            }
-            while (dataingresso < fine) {
-              matriceOccupazione[tran.passage?.parking_id][ntemp] += 1;
 
-              ntemp += 1;
-              inizio.setHours(inizio.getHours()+1);
-            }
-          } else {
-            let inizio: Date = new Date(startDate);
-            let ntemp:number=0;
-            let dataingresso: Date = new Date(tran.passing_by_date+tran.passing_by_hour);
-            inizio.setHours(inizio.getHours()+1);
-            while (inizio < dataingresso) {
-              matriceOccupazione[tran.passage?.parking_id][ntemp] += 1;
+        vacancies_matrix = Array.from({ length: parkings_number }, () =>
+            new Array(step_counter).fill(0).map(() => Math.floor(Math.random() * (50 - 5 + 1)) + 5));
 
-              ntemp += 1;
-              inizio.setHours(inizio.getHours()+1);
-            }
-          }
+        for (const parking of parkings) {
+            average_res.push(this.averageCalc(parking, vacancies_matrix, matrix_timeline));
         }
-      }
-      return res.status(200).json(matriceOccupazione);
+
+        return this.selectFormatAverageVacancies(average_res, req, res);
 
     }
 
-    async getAverageFreeSpots(req: Request, res: Response): Promise<Response> {
-        try {
-            const startDate = req.query.startDate as string;
-            const endDate = req.query.endDate as string;
-      
-            // Check if dates are valid
-            if (!startDate || isNaN(Date.parse(startDate))) {
-              return res.status(400).json({ error: 'Invalid startDate' });
+    averageCalc(parking: Parking, vacancies_matrix: number[][], matrix_timeline: timeline[]): any {
+        const start_time: number = parseInt(parking.day_starting_hour.split(':')[0]);
+        const end_time: number = parseInt(parking.day_finishing_hour.split(':')[0]);
+        let day: average = {
+            parking_id: parking.id,
+            time_slot: 'day',
+            average_vacancies: 0
+        };
+        let step_day: number = 0;
+        let night: average = {
+            parking_id: parking.id,
+            time_slot: 'night',
+            average_vacancies: 0
+        };
+        let step_night: number = 0;
+
+        for (const iterator of matrix_timeline) {
+            if (iterator.hour >= start_time && iterator.hour <= end_time) {
+                day.average_vacancies += vacancies_matrix[(parking.id - 1)][iterator.index];
+                step_day += 1;
+            } else {
+                night.average_vacancies += vacancies_matrix[(parking.id - 1)][iterator.index];
+                step_night += 1;
             }
-      
-            if (!endDate || isNaN(Date.parse(endDate))) {
-              return res.status(400).json({ error: 'Invalid endDate' });
-            }
-      
-            const parkings = await Parking.findAll();
-            let results = [];
-      
-            for (const parking of parkings) {
-              const dayStart = parking.day_starting_hour;
-              const dayEnd = parking.day_finishing_hour;
-      
-              const transits = await Transit.findByDateRange(startDate, endDate);
-      
-              let dayOccupiedSpots = 0;
-              let nightOccupiedSpots = 0;
-              let dayCount = 0;
-              let nightCount = 0;
-      
-              for (const transit of transits) {
-                const passingHour = parseInt(transit.passing_by_hour.split(':')[0]);
-      
-                if (passingHour >= parseInt(dayStart.split(':')[0]) && passingHour < parseInt(dayEnd.split(':')[0])) {
-                  dayOccupiedSpots += transit.direction === 'E' ? 1 : -1;
-                  dayCount++;
-                } else {
-                  nightOccupiedSpots += transit.direction === 'E' ? 1 : -1;
-                  nightCount++;
-                }
-              }
-      
-              const totalSpots = parking.parking_spots;
-      
-              const averageDayFreeSpots = totalSpots - (dayOccupiedSpots / (dayCount || 1));
-              const averageNightFreeSpots = totalSpots - (nightOccupiedSpots / (nightCount || 1));
-      
-              results.push({
-                parking_id: parking.id,
-                parking_name: parking.name,
-                average_day_free_spots: averageDayFreeSpots,
-                average_night_free_spots: averageNightFreeSpots
-              });
-            }
-      
-            return res.status(200).json({ statistics: results });
-          } catch (error) {
-            return res.status(500).json({ error: error.message });
-          }
         }
+
+        day.average_vacancies = Number((day.average_vacancies / step_day).toFixed(0));
+        night.average_vacancies = Number((night.average_vacancies / step_night).toFixed(0));
+
+
+        return [day, night];
+
+    }
+
+    async selectFormatAverageVacancies(average: average[][], req: Request, res: Response) {
+        if (req.query.format === 'json' || !req.query.format) {
+            return res.status(200).json({ average });
+        } else if (req.query.format === 'pdf') {
+            const pdf = new PDFDocument();
+            pdf.text('AVERAGE VACANCIES REPORT');
+
+            average.forEach((average) => {
+                pdf.text('--------------DAY---------------------------');
+                pdf.text(`Parking_id: ${average[0].parking_id}`);
+                pdf.text(`Time_slot: ${average[0].time_slot}`);
+                pdf.text(`Average_vacancies: ${average[0].average_vacancies}`);
+                pdf.text('--------------NIGHT-------------------------');
+                pdf.text(`Parking_id: ${average[1].parking_id}`);
+                pdf.text(`Time_slot: ${average[1].time_slot}`);
+                pdf.text(`Average_vacancies: ${average[1].average_vacancies}`);
+                pdf.text('--------------------------------------------');
+            });
+
+            res.setHeader('Content-Type', 'application/pdf');
+            pdf.pipe(res);
+            pdf.end();
+        }
+    }
+
+    async selectFormatAverageRevenue(parkings: Parkings[], req: Request, res: Response) {
+        if (req.query.format === 'json' || !req.query.format) {
+            return res.status(200).json({ parkings });
+        } else if (req.query.format === 'pdf') {
+            const pdf = new PDFDocument();
+            pdf.text('AVERAGE REVENUE REPORT');
+
+            parkings.forEach((parkings) => {
+                pdf.text('--------------REVENUE---------------------------');
+                pdf.text(`Parking_id: ${parkings.id}`);
+                pdf.text(`Revenue: ${parkings.sum}`);
+                pdf.text('--------------------------------------------');
+            });
+
+            res.setHeader('Content-Type', 'application/pdf');
+            pdf.pipe(res);
+            pdf.end();
+        }
+    }
 }
-
 export default new GeneralParkingController;

@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
   role VARCHAR(32),
-  token REAL NOT NULL
+  deleted_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Creazione della tabella "parkings"
@@ -17,7 +17,8 @@ CREATE TABLE IF NOT EXISTS parkings (
   parking_spots INT NOT NULL,
   occupied_spots INT NOT NULL,
   day_starting_hour TIME NOT NULL,
-  day_finishing_hour TIME NOT NULL
+  day_finishing_hour TIME NOT NULL,
+  deleted_at TIMESTAMP WITH TIME ZONE
 );
 
 -- Creazione della tabella "varchi"
@@ -27,6 +28,7 @@ CREATE TABLE IF NOT EXISTS passages (
   name VARCHAR(255) NOT NULL,
   entrance BOOLEAN NOT NULL DEFAULT TRUE,
   exit BOOLEAN NOT NULL DEFAULT TRUE,
+  deleted_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (parking_id) REFERENCES parkings(id)
 );
 
@@ -35,6 +37,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
   plate VARCHAR(10) PRIMARY KEY,
   vehicle_type VARCHAR(32) NOT NULL,
   user_id INT NOT NULL,
+  deleted_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
@@ -47,6 +50,7 @@ CREATE TABLE IF NOT EXISTS transits (
   passing_by_hour TIME NOT NULL,
   direction CHAR NOT NULL,
   vehicle_type VARCHAR(32) NOT NULL,
+  deleted_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (passage_id) REFERENCES passages(id),
   FOREIGN KEY (plate) REFERENCES vehicles(plate)
 );
@@ -60,6 +64,7 @@ CREATE TABLE IF NOT EXISTS fees (
   vehicle_type VARCHAR(32) NOT NULL,
   night BOOLEAN NOT NULL DEFAULT TRUE,
   festive BOOLEAN NOT NULL DEFAULT TRUE,
+  deleted_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (parking_id) REFERENCES parkings(id)
 );
 
@@ -70,19 +75,20 @@ CREATE TABLE IF NOT EXISTS bills (
   amount DECIMAL(10,2) NOT NULL,
   entrance_transit INT NOT NULL, 
   exit_transit INT NOT NULL,
+  deleted_at TIMESTAMP WITH TIME ZONE,
   FOREIGN KEY (entrance_transit) REFERENCES transits(id),
   FOREIGN KEY (exit_transit) REFERENCES transits(id),
   FOREIGN KEY (parking_id) REFERENCES parkings(id)
 );
 
 -- Inserimento di dati di esempio nella tabella "users"
-INSERT INTO users (name, surname, email, password, role, token)
+INSERT INTO users (name, surname, email, password, role)
 VALUES 
-  ('Marco', 'Rossi', 'marco.rossi@example.com', 'password123', 'operatore', 10.0),
-  ('Laura', 'Bianchi', 'laura.bianchi@example.com', 'password123', 'automobilista', 5.0),
-  ('Giovanni', 'Verdi', 'giovanni.verdi@example.com', 'password123', 'automobilista', 5.0),
-  ('Anna', 'Neri', 'anna.neri@example.com', 'password123', 'automobilista', 5.0),
-  ('Paolo', 'Russo', 'paolo.russo@example.com', 'password123', 'operatore', 10.0);
+  ('Marco', 'Rossi', 'marco.rossi@example.com', 'password123', 'operatore'),
+  ('Laura', 'Bianchi', 'laura.bianchi@example.com', 'password123', 'automobilista'),
+  ('Giovanni', 'Verdi', 'giovanni.verdi@example.com', 'password123', 'automobilista'),
+  ('Anna', 'Neri', 'anna.neri@example.com', 'password123', 'automobilista'),
+  ('Paolo', 'Russo', 'paolo.russo@example.com', 'password123', 'operatore');
 
 -- Inserimento di dati di esempio nella tabella "vehicles"
 INSERT INTO vehicles (plate, vehicle_type, user_id)
@@ -109,7 +115,7 @@ VALUES
 
 -- Inserimento di dati di esempio nella tabella "parkings"
 INSERT INTO parkings (name, parking_spots, occupied_spots, day_starting_hour, day_finishing_hour)
-VALUES ('parcheggio Centrale', 100, 50, '06:00:00', '22:00:00'),
+VALUES ('parcheggio Centrale', 100, 100, '06:00:00', '22:00:00'),
        ('parcheggio Stazione', 200, 100, '07:00:00', '21:00:00'),
        ('parcheggio Mare', 150, 75, '08:00:00', '20:00:00'),
        ('parcheggio Duomo', 300, 150, '09:00:00', '23:00:00'),
@@ -240,3 +246,12 @@ VALUES
   (3, 23.50, 23, 24),
   (1, 25.00, 25, 26),
   (2, 27.50, 27, 28);
+
+  -- Aggiornamento: impostazione deleted_at a NULL per i record esistenti
+UPDATE users SET deleted_at = NULL;
+UPDATE vehicles SET deleted_at = NULL;
+UPDATE parkings SET deleted_at = NULL;
+UPDATE passages SET deleted_at = NULL;
+UPDATE transits SET deleted_at = NULL;
+UPDATE bills SET deleted_at = NULL;
+UPDATE fees SET deleted_at = NULL;
