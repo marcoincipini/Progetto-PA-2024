@@ -122,7 +122,7 @@ Transit.init(
 );
 
 // Define the associations between Transit and Passage & Vehicle (optional)
-Transit.belongsTo(Passage, { foreignKey: 'passage_id', as: 'passage' });
+Transit.belongsTo(Passage, { foreignKey: 'passage_id', as:'passage' });
 Transit.belongsTo(Vehicle, { foreignKey: 'plate' });
 
 export default Transit;
