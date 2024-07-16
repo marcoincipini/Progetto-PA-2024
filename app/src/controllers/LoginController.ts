@@ -4,14 +4,16 @@ import * as dotenv from 'dotenv';
 import User from '../models/User'
 import Passage from '../models/Passage';
 import { errorFactory  } from '../factory/ErrorMessage';
-import { Error } from '../factory/Status'
+import { ErrorStatus } from '../factory/Status'
+
 dotenv.config();
 
 const JWT_SECRET = process.env.JWT_SECRET;
+const ErrorFac: errorFactory = new errorFactory();
 
 class loginController {
     async login(req: Request, res: Response) {
-        const { email, password } = req.body;
+        const { email } = req.body;
 
         const user = await User.getUserData(email);
 

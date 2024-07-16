@@ -1,6 +1,6 @@
 // ErrorMessages.ts
 
-import { HttpStatus, Response, Message, MessageFactory, Error } from './Status';
+import { HttpStatus, Response, Message, MessageFactory, ErrorStatus } from './Status';
 
 
 class userLoginError implements Message {
@@ -17,7 +17,7 @@ class emailNotValid implements Message {
     getResponse(): Response {
         return {
             status: HttpStatus.BAD_REQUEST,
-            message: "Bad request - Email format is not valid for the User",
+            message: "Bad request - Email format is not valid",
             type: "application/json"
         }
     }
@@ -63,101 +63,85 @@ class passageLoginError implements Message {
     }
 }
 
-class creationBadRequest implements Message {
-    getResponse(): Response {
-        return {
-            status: HttpStatus.BAD_REQUEST,
-            message: "Bad request - Request not valid for creation",
-            type: "application/json"
-        }
-    }
-}
-
-class readingBadRequest implements Message {
-    getResponse(): Response {
-        return {
-            status: HttpStatus.BAD_REQUEST,
-            message: "Bad request - Request not valid for read",
-            type: "application/json"
-        }
-    }
-}
-
-class updateBadRequest implements Message {
-    getResponse(): Response {
-        return {
-            status: HttpStatus.BAD_REQUEST,
-            message: "Bad request - Request not valid for update",
-            type: "application/json"
-        }
-    }
-}
-
-class deleteBadRequest implements Message {
-    getResponse(): Response {
-        return {
-            status: HttpStatus.BAD_REQUEST,
-            message: "Bad request - Request not valid for delete",
-            type: "application/json"
-        }
-    }
-}
-
 class creationInternalServerError implements Message {
+    private specificMessage: string;
+    constructor(specificMessage: string) {
+        this.specificMessage = specificMessage;
+    }
     getResponse(): Response {
         return {
             status: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: "Bad request - Creation of model failed",
+            message: `Bad request - Creation of model failed: ${this.specificMessage}`,
             type: "application/json"
         }
     }
 }
 
 class readInternalServerError implements Message {
+    private specificMessage: string;
+    constructor(specificMessage: string) {
+        this.specificMessage = specificMessage;
+    }
     getResponse(): Response {
         return {
             status: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: "Bad request - Reading data from model failed",
+            message: `Bad request - Reading data from model failed: ${this.specificMessage}`,
             type: "application/json"
         }
     }
 }
 
 class updateInternalServerError implements Message {
+    private specificMessage: string;
+    constructor(specificMessage: string) {
+        this.specificMessage = specificMessage;
+    }
     getResponse(): Response {
         return {
             status: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: "Bad request - Updating model failed",
+            message: `Bad request - Updating model failed: ${this.specificMessage}`,
             type: "application/json"
         }
     }
 }
 
 class deleteInternalServerError implements Message {
+    private specificMessage: string;
+    constructor(specificMessage: string) {
+        this.specificMessage = specificMessage;
+    }
     getResponse(): Response {
         return {
             status: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: "Bad request - Deleting model failed",
+            message: `Bad request - Deleting model failed: ${this.specificMessage}`,
             type: "application/json"
         }
     }
 }
 
 class resourceNotFoundError implements Message {
+    private specificMessage: string;
+    constructor(specificMessage: string) {
+        this.specificMessage = specificMessage;
+    }
     getResponse(): Response {
         return {
             status: HttpStatus.NOT_FOUND,
-            message: "Not Found - Resource not found or not existing, check console log for details",
+            message: `Not Found - Resource not found or not existing: ${this.specificMessage}`,
             type: "application/json"
         }
     }
 }
 
 class defaultError implements Message {
+    private specificMessage: string;
+    constructor(specificMessage: string) {
+        this.specificMessage = specificMessage;
+    }
     getResponse(): Response {
         return {
             status: HttpStatus.INTERNAL_SERVER_ERROR,
-            message: "Ops, something went wrong",
+            message: `Ops, something went wrong: ${this.specificMessage}`,
             type: "application/json"
         };
     }
@@ -184,116 +168,147 @@ class invalidHourFormat implements Message {
 }
 
 class invalidFormat implements Message {
+    private specificMessage: string;
+    constructor(specificMessage: string) {
+        this.specificMessage = specificMessage;
+    }
     getResponse(): Response {
         return {
             status: HttpStatus.BAD_REQUEST,
-            message: "Bad request - Format not valid, check console log for details",
+            message: `Bad request - Format not valid: ${this.specificMessage}`,
             type: "application/json"
         }
     }
 }
 
-class routeNotFound implements Message{
+class routeNotFound implements Message {
     getResponse(): Response {
-      return {
-        status: HttpStatus.NOT_FOUND,
-        message: "Not Found - Route not found",
-        type: "application/json"
-      }
+        return {
+            status: HttpStatus.NOT_FOUND,
+            message: "Not Found - Route not found",
+            type: "application/json"
+        }
     }
-  }
+}
 
-  class functionNotWorking implements Message{
-    getResponse(): Response {
-      return {
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: "Internal Server Error - some functions do not work properly, check console log for details",
-        type: "application/json"
-      }
+class functionNotWorking implements Message {
+    private specificMessage: string;
+    constructor(specificMessage: string) {
+        this.specificMessage = specificMessage;
     }
-  }
+    getResponse(): Response {
+        return {
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: `Internal Server Error - some functions do not work properly: ${this.specificMessage}`,
+            type: "application/json"
+        }
+    }
+}
 
-  class invalidFormatOrResourceNotFound implements Message{
-    getResponse(): Response {
-      return {
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: "Internal Server Error - The format is invalid or some resources do not exist, check console log for details",
-        type: "application/json"
-      }
+class invalidFormatOrResourceNotFound implements Message {
+    private specificMessage: string;
+    constructor(specificMessage: string) {
+        this.specificMessage = specificMessage;
     }
-  }
-  
+    getResponse(): Response {
+        return {
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+            message: `Internal Server Error - The format is invalid or some resources do not exist: ${this.specificMessage}`,
+            type: "application/json"
+        }
+    }
+}
+
+class parkingFull implements Message {
+    getResponse(): Response {
+        return {
+            status: HttpStatus.FORBIDDEN,
+            message: "Forbidden - The parking is full, no more spots available",
+            type: "application/json"
+        }
+    }
+}
+
+class resourceAlreadyPresent implements Message {
+    private specificMessage: string;
+    constructor(specificMessage: string) {
+        this.specificMessage = specificMessage;
+    }
+    getResponse(): Response {
+        return {
+            status: HttpStatus.FORBIDDEN,
+            message: `Forbidden - The resource is already present:${this.specificMessage}`,
+            type: "application/json"
+        }
+    }
+}
+
 export class errorFactory extends MessageFactory {
 
-    getMessage(type: Error): Message {
+    getMessage(type: ErrorStatus, specificMessage?: string): Message {
         let errorMessage: Message | null = null;
 
         switch (type) {
-            case Error.userLoginError:
+            case ErrorStatus.userLoginError:
                 errorMessage = new userLoginError;
                 break;
-            case Error.emailNotValid:
+            case ErrorStatus.emailNotValid:
                 errorMessage = new emailNotValid;
                 break;
-            case Error.loginBadRequest:
+            case ErrorStatus.loginBadRequest:
                 errorMessage = new loginBadRequest;
                 break;
-            case Error.jwtNotValid:
+            case ErrorStatus.jwtNotValid:
                 errorMessage = new jwtNotValid;
                 break;
-            case Error.userNotAuthorized:
+            case ErrorStatus.userNotAuthorized:
                 errorMessage = new userNotAuthorized;
                 break;
-            case Error.passageLoginError:
+            case ErrorStatus.passageLoginError:
                 errorMessage = new passageLoginError;
                 break;
-            case Error.creationBadRequest:
-                errorMessage = new creationBadRequest;
+            case ErrorStatus.creationInternalServerError:
+                errorMessage = new creationInternalServerError(specificMessage);
                 break;
-            case Error.readingBadRequest:
-                errorMessage = new readingBadRequest;
+            case ErrorStatus.readInternalServerError:
+                errorMessage = new readInternalServerError(specificMessage);
                 break;
-            case Error.updateBadRequest:
-                errorMessage = new updateBadRequest;
+            case ErrorStatus.updateInternalServerError:
+                errorMessage = new updateInternalServerError(specificMessage);
                 break;
-            case Error.deleteBadRequest:
-                errorMessage = new deleteBadRequest;
+            case ErrorStatus.deleteInternalServerError:
+                errorMessage = new deleteInternalServerError(specificMessage);
                 break;
-            case Error.creationInternalServerError:
-                errorMessage = new creationInternalServerError;
+            case ErrorStatus.resourceNotFoundError:
+                errorMessage = new resourceNotFoundError(specificMessage);
                 break;
-            case Error.readInternalServerError:
-                errorMessage = new readInternalServerError;
-                break;
-            case Error.updateInternalServerError:
-                errorMessage = new updateInternalServerError;
-                break;
-            case Error.deleteInternalServerError:
-                errorMessage = new deleteInternalServerError;
-                break;
-            case Error.resourceNotFoundError:
-                errorMessage = new resourceNotFoundError;
-                break;
-            case Error.invalidDateFormat:
+            case ErrorStatus.invalidDateFormat:
                 errorMessage = new invalidDateFormat;
                 break;
-            case Error.invalidHourFormat:
-                errorMessage = new invalidHourFormat;   
+            case ErrorStatus.invalidHourFormat:
+                errorMessage = new invalidHourFormat;
                 break;
-            case Error.invalidFormat:
-                errorMessage = new invalidFormat;   
-                break; 
-            case Error.routeNotFound:
-                errorMessage = new routeNotFound;   
+            case ErrorStatus.invalidFormat:
+                errorMessage = new invalidFormat(specificMessage);
                 break;
-            case Error.functionNotWorking:
-                errorMessage = new functionNotWorking;   
+            case ErrorStatus.routeNotFound:
+                errorMessage = new routeNotFound;
                 break;
-            case Error.invalidFormatOrResourceNotFound:
-                errorMessage = new invalidFormatOrResourceNotFound;   
-                break;                
+            case ErrorStatus.functionNotWorking:
+                errorMessage = new functionNotWorking(specificMessage);
+                break;
+            case ErrorStatus.invalidFormatOrResourceNotFound:
+                errorMessage = new invalidFormatOrResourceNotFound(specificMessage);
+                break;
+            case ErrorStatus.parkingFull:
+                errorMessage = new parkingFull;
+                break;
+            case ErrorStatus.resourceAlreadyPresent:
+                errorMessage = new resourceAlreadyPresent(specificMessage);
+                break;
+
             default:
-                errorMessage = new defaultError;    
+                errorMessage = new defaultError(specificMessage);
         }
         return errorMessage;
     }

@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { Model, ModelStatic } from 'sequelize';
 import Parking from '../models/Parking';
 import Passage from '../models/Passage';
 import Vehicle from '../models/Vehicle';
 import { errorFactory  } from '../factory/ErrorMessage';
-import { Error } from '../factory/Status'
+import { ErrorStatus } from '../factory/Status'
 
+const ErrorFac: errorFactory = new errorFactory();
 
 class validateData {
 
@@ -14,8 +14,8 @@ class validateData {
         const { id } = req.params;
 
         if (!id || isNaN(Number(id))) {
-            console.log('Invalid ID');
-            next(Error.invalidFormat);
+            const specificMessage = 'Invalid ID';
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         next();
@@ -29,93 +29,99 @@ class validateData {
         const passage = await Passage.findByPk(passage_id);
 
         if (!passage) {
-            console.log("Passage not found or does not exist");
-                next(Error.resourceNotFoundError);
+            const specificMessage = "Passage not found or does not exist";
+                next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, specificMessage));
         }
 
         if (typeof passage_id !== 'number') {
-            console.log('Invalid passage_id. Passage id is required and is expected a number' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid passage_id. Passage id is expected a number' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
         const plateEx = await Vehicle.findByPk(plate);
 
         if (!plateEx) {
-            console.log ('Plate not found' );
-            next(Error.resourceNotFoundError);
+            const specificMessage = 'Plate not found' ;
+            next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, specificMessage));
         }
 
         if (!plateEx || typeof plate !== 'string') {
-            console.log('Invalid plate. plate is required and is expected a string' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid plate. plate is expected a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!passing_by_date || typeof passing_by_date !== 'string') {
-            console.log('Invalid passing_by_date. passing_by_date is required and is expected a string' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid passing_by_date. passing_by_date is expected a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!passing_by_hour || typeof passing_by_hour !== 'string') {
-            console.log('Invalid passing_by_hour. passing_by_hour is required and is expected a string' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid passing_by_hour. passing_by_hour is expected a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!direction || typeof direction !== 'string') {
-            console.log('Invalid direction. direction is required and is expected a string' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid direction. direction is expected a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!vehicle_type || typeof vehicle_type !== 'string') {
-            console.log('Invalid vehicle_type. vehicle_type is required and is expected a string' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid vehicle_type. vehicle_type is expected a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!dateRegex.test(passing_by_date)) {
-            next(Error.invalidDateFormat);
+            next(ErrorFac.getMessage(ErrorStatus.invalidDateFormat));
         }
 
         if (!hourRegex.test(passing_by_hour)) {
-            next(Error.invalidHourFormat);
+            next(ErrorFac.getMessage(ErrorStatus.invalidHourFormat));
         }
 
         if (direction.length !== 1 || (direction !== 'E' && direction !== 'U')) {
-            console.log('Invalid direction format. Expected length: 1 character' );
-            next(Error.invalidFormat);
+            const specificMessage = 'Invalid direction format. Expected length: 1 character' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (plate.length !== 7) {
-            console.log('Invalid plate format. Expected length: 7 characters' );
-            next(Error.invalidFormat);
+            const specificMessage = 'Invalid plate format. Expected length: 7 characters' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat));
         }
-
+/*
+        if (passage_id || plate || direction || vehicle_type){
+            const specificMessage = (`parameter already existing`);
+            next(ErrorFac.getMessage(ErrorStatus.resourceAlreadyPresent, specificMessage));
+        }
+*/
+//validateParams(next, passage_id, plate, direction, vehicle_type);
         next();
     }
 
     validateParkingDataCreation(req: Request, res: Response, next: NextFunction) {
         const { name, parking_spots, occupied_spots, day_starting_hour, day_finishing_hour } = req.body;
 
+
+
         if (!name || typeof name !== 'string') {
-            console.log('Invalid name. Name is required and must be a string' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid name. Name must be a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound));
         }
 
         if (!parking_spots || typeof parking_spots !== 'number' || !Number.isInteger(parking_spots) || parking_spots <= 0) {
-            console.log('Invalid parking_spots. Must be a positive integer' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid parking_spots. Must be a positive integer' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound));
         }
 
         if (!occupied_spots || typeof occupied_spots !== 'number' || !Number.isInteger(occupied_spots) || occupied_spots < 0) {
-            console.log('Invalid occupied_spots. Must be a non-negative integer' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid occupied_spots. Must be a non-negative integer' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound));
         }
 
         if (!day_starting_hour || !/^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/.test(day_starting_hour)) {
-            console.log('Invalid day_starting_hour format. Expected format: hh:mm:ss' );
-            next(Error.invalidDateFormat);
+            next(ErrorFac.getMessage(ErrorStatus.invalidHourFormat));
         }
 
         if (!day_finishing_hour || !/^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/.test(day_finishing_hour)) {
-            console.log('Invalid day_finishing_hour format. Expected format: hh:mm:ss' );
-            next(Error.invalidHourFormat);
+            next(ErrorFac.getMessage(ErrorStatus.invalidHourFormat));
         }
 
         next();
@@ -125,28 +131,27 @@ class validateData {
         const { name, surname, email, password, role } = req.body;
 
         if (!name || typeof name !== 'string') {
-            console.log('Invalid name. Name is required and must be a string' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid name. Name must be a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!surname || typeof surname !== 'string') {
-            console.log('Invalid surname. Surname is required and must be a string' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid surname. Surname must be a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!email || typeof email !== 'string' || !validateEmail(email)) {
-            console.log('Invalid email format' );
-            next(Error.invalidFormatOrResourceNotFound);
+            next(ErrorFac.getMessage(ErrorStatus.emailNotValid));
         }
 
         if (!password || typeof password !== 'string') {
-            console.log('Invalid password. Password is required and must be a string' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid password. Password must be a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!role || typeof role !== 'string' || role.length > 32) {
-            console.log('Invalid role. Role is required and must be a string with maximum length of 32 characters');
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid role. Role must be a string with maximum length of 32 characters';
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         next();
@@ -156,30 +161,30 @@ class validateData {
         const { parking_id, name, entrance, exit } = req.body;
 
         if (typeof parking_id !== 'number') {
-            console.log('Invalid parking_id. Parking ID is required and must be a number' );
-            next(Error.invalidFormat);
+            const specificMessage = 'Invalid parking_id. Parking ID must be a number' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         const parking = await Parking.findByPk(parking_id);
 
         if (!parking) {
-            console.log ('Parking not found' );
-            next(Error.resourceNotFoundError);
+            const specificMessage = 'Passage not found';
+            next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, specificMessage));
         }
 
         if (!name || typeof name !== 'string' || name.length > 255) {
-            console.log('Invalid name. Name is required and must be a string with maximum length of 255 characters' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid name. Name must be a string with maximum length of 255 characters' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!entrance || typeof entrance !== 'boolean') {
-            console.log('Invalid entrance value. Entrance is required and must be a boolean');
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid entrance value. Entrance must be a boolean';
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!exit || typeof exit !== 'boolean') {
-            console.log('Invalid exit value. Exit is required and must be a boolean' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid exit value. Exit must be a boolean';
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         next();
@@ -191,38 +196,38 @@ class validateData {
         const parking = await Parking.findByPk(parking_id);
 
         if (!parking) {
-            console.log('Parking not found' );
-            next(Error.resourceNotFoundError);
+            const specificMessage = 'Parking not found' ;
+            next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, specificMessage));
         }
 
         if (typeof parking_id !== 'number') {
-            console.log('Invalid parking_id. Parking ID is required and must be a number' );
-            next(Error.invalidFormat);
+            const specificMessage = 'Invalid parking_id. Parking ID must be a number' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (!name || typeof name !== 'string' || name.length > 255) {
-            console.log('Invalid name. Name is required and must be a string with maximum length of 255 characters' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid name. Name must be a string with maximum length of 255 characters' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!hourly_amount || typeof hourly_amount !== 'number' || !validateDecimal(hourly_amount)) {
-            console.log('Invalid hourly_amount. Hourly amount is required and must be a decimal number with two decimal places' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid hourly_amount. Hourly amount must be a decimal number with two decimal places' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!vehicle_type || typeof vehicle_type !== 'string' || vehicle_type.length > 32) {
-            console.log('Invalid vehicle_type. Vehicle type is required and must be a string with maximum length of 32 characters' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid vehicle_type. Vehicle type must be a string with maximum length of 32 characters' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!night || typeof night !== 'boolean') {
-            console.log('Invalid night value. Night value is required and must be a boolean' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid night value. Night value must be a boolean' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         if (!festive || typeof festive !== 'boolean') {
-            console.log('Invalid festive value. Festive value is required must be a boolean' );
-            next(Error.invalidFormatOrResourceNotFound);
+            const specificMessage = 'Invalid festive value. Festive value is required must be a boolean' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, specificMessage));
         }
 
         next();
@@ -235,47 +240,53 @@ class validateData {
 
         const passage = await Passage.findByPk(passage_id);
 
-        if (!passage || (passage && typeof passage_id !== 'number')) {
-            console.log('Invalid passage_id. Passage id is required and is expected a number' );
-            next(Error.invalidFormatOrResourceNotFound);
+        if (passage && typeof passage_id !== 'number') {
+            const specificMessage = 'Invalid passage_id. Passage id is expected a number' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
         const plateEx = await Vehicle.findByPk(plate);
 
-        if (!plateEx || (plateEx && typeof plate !== 'string')) {
-            console.log('Invalid plate. plate is required and is expected a string' );
-            next(Error.invalidFormatOrResourceNotFound);
+        if (plateEx && typeof plate !== 'string') {
+            const specificMessage = 'Invalid plate. Plate is expected a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (passing_by_date && typeof passing_by_date !== 'string') {
-            console.log('Invalid passing_by_date. passing_by_date is required and is expected a string' );
+            const specificMessage = 'Invalid passing_by_date. Passing_by_date is expected a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (passing_by_hour && typeof passing_by_hour !== 'string') {
-            console.log('Invalid passing_by_hour. passing_by_hour is required and is expected a string' );
+            const specificMessage = 'Invalid passing_by_hour. Passing_by_hour is expected a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (direction && typeof direction !== 'string') {
-            console.log('Invalid direction. direction is required and is expected a string' );
+            const specificMessage = 'Invalid direction. Direction is expected a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (vehicle_type && typeof vehicle_type !== 'string') {
-            console.log('Invalid vehicle_type. vehicle_type is required and is expected a string' );
+            const specificMessage = 'Invalid vehicle_type. Vehicle_type is expected a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (!dateRegex.test(passing_by_date)) {
-            console.log('Invalid date format. Expected format: aaaa-mm-gg' );
+            next(ErrorFac.getMessage(ErrorStatus.invalidDateFormat));
         }
 
         if (!hourRegex.test(passing_by_hour)) {
-            console.log('Invalid hour format. Expected format: hh:mm:ss' );
+            next(ErrorFac.getMessage(ErrorStatus.invalidHourFormat));
         }
 
         if (direction.length !== 1 || (direction !== 'E' && direction !== 'U')) {
-            console.log('Invalid direction format. Expected length: 1 character' );
+            const specificMessage = 'Invalid direction format. Expected length: 1 character' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (plate.length !== 7) {
-            console.log('Invalid plate format. Expected length: 7 characters' );
+            const specificMessage = 'Invalid plate format. Expected length: 7 characters' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         next();
@@ -284,24 +295,29 @@ class validateData {
     validateParkingDataUpdate(req: Request, res: Response, next: NextFunction) {
         const { name, parking_spots, occupied_spots, day_starting_hour, day_finishing_hour } = req.body;
 
-        if (!name && typeof name !== 'string') {
-            console.log('Invalid name. Name is required and must be a string' );
+        if (name && typeof name !== 'string') {
+            const specificMessage = 'Invalid name. Name must be a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (parking_spots && (typeof parking_spots !== 'number' || !Number.isInteger(parking_spots) || parking_spots <= 0)) {
-            console.log('Invalid parking_spots. Must be a positive integer' );
+            const specificMessage = 'Invalid parking_spots. Must be a positive integer' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (occupied_spots && (typeof occupied_spots !== 'number' || !Number.isInteger(occupied_spots) || occupied_spots < 0)) {
-            console.log('Invalid occupied_spots. Must be a non-negative integer' );
+            const specificMessage = 'Invalid occupied_spots. Must be a non-negative integer' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (day_starting_hour && !/^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/.test(day_starting_hour)) {
-            console.log('Invalid day_starting_hour format. Expected format: hh:mm:ss' );
+            const specificMessage = 'Invalid day_starting_hour format. Expected format: hh:mm:ss' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidHourFormat, specificMessage));
         }
 
         if (day_finishing_hour && !/^([01]?[0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/.test(day_finishing_hour)) {
-            console.log('Invalid day_finishing_hour format. Expected format: hh:mm:ss' );
+            const specificMessage = 'Invalid day_finishing_hour format. Expected format: hh:mm:ss' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidHourFormat, specificMessage));
         }
 
         next();
@@ -311,23 +327,28 @@ class validateData {
         const { name, surname, email, password, role } = req.body;
 
         if (name && typeof name !== 'string') {
-            console.log('Invalid name. Name is required and must be a string' );
+            const specificMessage = 'Invalid name. Name must be a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (surname && typeof surname !== 'string') {
-            console.log('Invalid surname. Surname is required and must be a string' );
+            const specificMessage = 'Invalid surname. Surname must be a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (email && (typeof email !== 'string' || !validateEmail(email))) {
-            console.log('Invalid email format' );
+            const specificMessage = 'Invalid email. Email must be a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (password && typeof password !== 'string') {
-            console.log('Invalid password. Password is required and must be a string' );
+            const specificMessage = 'Invalid password. Password must be a string' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (role && (typeof role !== 'string' || role.length > 32)) {
-            console.log('Invalid role. Role is required and must be a string with maximum length of 32 characters' );
+            const specificMessage = 'Invalid role. Role must be a string with maximum length of 32 characters' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         next();
@@ -339,19 +360,23 @@ class validateData {
         const parking = await Parking.findByPk(parking_id);
 
         if (parking && typeof parking_id !== 'number') {
-            console.log('Invalid parking_id. Parking ID is required and must be a number' );
+            const specificMessage = 'Invalid parking_id. Parking ID must be a number' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (name && (typeof name !== 'string' || name.length > 255)) {
-            console.log('Invalid name. Name is required and must be a string with maximum length of 255 characters' );
+            const specificMessage = 'Invalid name. Name must be a string with maximum length of 255 characters' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (entrance && typeof entrance !== 'boolean') {
-            console.log('Invalid entrance value. Entrance is required and must be a boolean' );
+            const specificMessage = 'Invalid entrance value. Entrance must be a boolean' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (exit && typeof exit !== 'boolean') {
-            console.log('Invalid exit value. Exit is required and must be a boolean' );
+            const specificMessage = 'Invalid exit value. Exit must be a boolean' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         next();
@@ -363,34 +388,52 @@ class validateData {
         const parking = await Parking.findByPk(parking_id);
 
         if (parking && typeof parking_id !== 'number') {
-            console.log('Invalid parking_id. Parking ID is required and must be a number' );
+            const specificMessage = 'Invalid parking_id. Parking ID must be a number' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
+
         }
 
         if (name && (typeof name !== 'string' || name.length > 255)) {
-            console.log('Invalid name. Name is required and must be a string with maximum length of 255 characters' );
+            const specificMessage = 'Invalid name. Name must be a string with maximum length of 255 characters' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (hourly_amount && (typeof hourly_amount !== 'number' || !validateDecimal(hourly_amount))) {
-            console.log('Invalid hourly_amount. Hourly amount is required and must be a decimal number with two decimal places' );
+            const specificMessage = 'Invalid hourly_amount. Hourly amount must be a decimal number with two decimal places' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (vehicle_type && (typeof vehicle_type !== 'string' || vehicle_type.length > 32)) {
-            console.log('Invalid vehicle_type. Vehicle type is required and must be a string with maximum length of 32 characters' );
+            const specificMessage = 'Invalid vehicle_type. Vehicle type must be a string with maximum length of 32 characters' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (night && typeof night !== 'boolean') {
-            console.log('Invalid night value. Night value is required and must be a boolean' );
+            const specificMessage = 'Invalid night value. Night value must be a boolean' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         if (festive && typeof festive !== 'boolean') {
-            console.log('Invalid festive value. Festive value is required must be a boolean' );
+            const specificMessage = 'Invalid festive value. Festive value must be a boolean' ;
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         next();
     }
 
-
 }
+
+export function validateParams(next: NextFunction, ...params: any[]) {
+    for (const param of params) {
+        if (param) {
+            const specificMessage = `${param} already existing`;
+            console.log(specificMessage);
+            next(ErrorFac.getMessage(ErrorStatus.resourceAlreadyPresent, specificMessage));
+        }
+    }
+    next();
+}
+
 export function validateDecimal(num: number): boolean {
     const regex = /^\d+(\.\d{1,2})?$/;
     return regex.test(num.toString());

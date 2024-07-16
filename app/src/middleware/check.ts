@@ -4,14 +4,17 @@ import Parking from '../models/Parking';
 import Passage from '../models/Passage';
 import User from '../models/User';
 import { errorFactory  } from '../factory/ErrorMessage';
-import { Error } from '../factory/Status'
+import { ErrorStatus } from '../factory/Status'
+
+const ErrorFac: errorFactory = new errorFactory();
 
 class globalCheck {
     validateString(req: Request, res: Response, next: NextFunction) {
         const { param } = req.body;
 
         if (typeof param !== 'string') {
-            next(Error.invalidFormat);
+            const specificMessage = "The parameter must be a string";
+            next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
         }
 
         next();
@@ -23,11 +26,12 @@ class globalCheck {
         const user = await User.getUserData(email);
 
         if (user) {
-            console.log("Logging in as " + user.role);
+            //success message
+            const specificMessage = "Logging in as " + user.role;
             next();
         } else {
-            console.log("User not found or does not exist");
-            next(Error.resourceNotFoundError);
+            const specificMessage = "User not found or does not exist";
+            next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, specificMessage));
         }
     };
 
@@ -38,14 +42,14 @@ class globalCheck {
                 const record = await model.findByPk(id);
 
                 if (!record) {
-                    console.log("Record not found or does not exist");
-                    next(Error.resourceNotFoundError);
+                    const specificMessage = "Record not found or does not exist";
+                    next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, specificMessage));
                 }
 
                 next();
             } catch (error) {
-                console.error(`Error checking ${model.name} existence:`, error);
-                next(Error.functionNotWorking);
+                const specificMessage = `Error checking ${model.name} existence:`;
+                next(ErrorFac.getMessage(ErrorStatus.functionNotWorking, specificMessage));
             }
         };
     }
@@ -55,16 +59,16 @@ class globalCheck {
             const { passage_id } = req.body; // Supponendo che l'ID del passage sia passato nel corpo della richiesta
     
             if (!passage_id) {
-                console.log("Passage id is required");
-                next(Error.functionNotWorking);
+                const specificMessage = "Passage id is required";
+                next(ErrorFac.getMessage(ErrorStatus.functionNotWorking, specificMessage));
             }
     
             // Trova il passage associato
             const passage = await Passage.findByPk(passage_id);
     
             if (!passage) {
-                console.log("Passage not found or does not exist");
-                next(Error.resourceNotFoundError);
+                const specificMessage = "Passage not found or does not exist";
+                next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, specificMessage));
             }
     
             const parking_id = passage.parking_id;
@@ -73,19 +77,19 @@ class globalCheck {
             const parking = await Parking.findByPk(parking_id);
     
             if (!parking) {
-                console.log("Parking not found or does not exist");
-                next(Error.resourceNotFoundError);
+                const specificMessage = "Parking not found or does not exist";
+                next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, specificMessage));
             }
     
             if (parking.occupied_spots >= parking.parking_spots) {
-                console.log('Parking is full. No more spots available' );
-                next(Error.functionNotWorking);
+                const specificMessage = 'Parking is full. No more spots available';
+                next(ErrorFac.getMessage(ErrorStatus.functionNotWorking, specificMessage));
             }
     
             next();
         } catch (error) {
-            console.error('Error checking parking capacity:', error);
-            next(Error.functionNotWorking);
+            const specificMessage = 'Error checking parking capacity:';
+            next(ErrorFac.getMessage(ErrorStatus.functionNotWorking, specificMessage));
         }
     }
 

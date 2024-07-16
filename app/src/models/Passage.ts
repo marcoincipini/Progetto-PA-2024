@@ -65,6 +65,6 @@ Passage.init(
 );
 
 // Define the association between Passage and Parking (optional)
-Passage.belongsTo(Parking, { foreignKey: 'parking_id', onDelete: 'CASCADE' });
+Passage.belongsTo(Parking, { foreignKey: 'parking_id', as: 'parking', onDelete: 'CASCADE' });
 
 export default Passage;

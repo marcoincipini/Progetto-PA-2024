@@ -6,6 +6,10 @@ import Passage from '../models/Passage';
 import PDFDocument from 'pdfkit';
 import Bill from '../models/Bill';
 import Parking from '../models/Parking';
+import { errorFactory  } from '../factory/ErrorMessage';
+import { ErrorStatus } from '../factory/Status'
+
+const ErrorFac: errorFactory = new errorFactory();
 
 type timeline = {
     index: number;

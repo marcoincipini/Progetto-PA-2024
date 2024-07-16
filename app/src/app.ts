@@ -14,6 +14,7 @@ import CRUDController from './controllers/CRUDController';
 import TransitStatusController from './controllers/TransitStatusController';
 import loginController from './controllers/LoginController';
 import GeneralParkingController from './controllers/GeneralParkingController';
+import DetailParkingController from './controllers/DetailParkingController';
 
 import authMiddleware from './middleware/auth';
 import globalCheck from './middleware/check'
@@ -22,7 +23,7 @@ import routerApp from './routes/routes';
 import * as middlewareErrorHandler from './middleware/generalErrorMiddleware'
 
 import { errorFactory  } from './factory/ErrorMessage';
-import { Error } from './factory/Status'
+import { ErrorStatus } from './factory/Status'
 //import { checkRole } from './middleware/check';
 
 dotenv.config();
@@ -64,10 +65,13 @@ router.get('/api/transits', async (req: any, res: any) => {
   }
 });
 //router.get('/api/try', (req: any, res: any) => GeneralParkingController.getStats (req, res));
-app.get('/api/try', (req: Request, res: Response) => {
+/*app.get('/api/try', (req: Request, res: Response) => {
   // Chiamata al metodo getStats del controller
-  GeneralParkingController.getStatistics(req, res);
+  let variabile = Transit.findByDateRange('2023-03-12 10:50:54','2025-06-15 07:15:32');
+  res.json({ variabile });
 });
+*/
+app.get('/api/try/:id', async (req: Request, res: Response) => DetailParkingController.getParkRevenues(req, res));
 /*
 router.get('/api/try', async (req: any, res: any) => {
   try {

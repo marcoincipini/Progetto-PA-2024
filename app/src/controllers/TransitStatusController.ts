@@ -6,7 +6,9 @@ import Passage from '../models/Passage';
 import PDFDocument from 'pdfkit';
 import Bill from '../models/Bill';
 import { errorFactory  } from '../factory/ErrorMessage';
-import { Error } from '../factory/Status'
+import { ErrorStatus } from '../factory/Status'
+
+const ErrorFac: errorFactory = new errorFactory();
 
 class TransitStatusController {
 
@@ -24,7 +26,6 @@ class TransitStatusController {
             const startDate = req.query.startDate as string;
             const endDate = req.query.endDate as string;
             const { role } = req.body.user;
-            //const role = req.locals.user.role;
 
             // Filtra per targhe solo se l'utente è un automobilista
             if (role == 'operatore' && plates.length > 0) {
@@ -91,7 +92,8 @@ class TransitStatusController {
         return exitTransitList;
     }
 
-    async selectFormat(transit: Transit[], req: Request, res: Response) {
+    async selectFormat(transit: any[], req: Request, res: Response) {
+
         if (req.query.format === 'json' || !req.query.format) {
             return res.status(200).json({ transit });
         } else if (req.query.format === 'pdf') {
@@ -99,9 +101,16 @@ class TransitStatusController {
             pdf.text('TRANSIT REPORT');
 
             transit.forEach((transit) => {
+                pdf.text(`Transit ID: ${transit.transit_id}`);
                 pdf.text(`Plate: ${transit.plate}`);
-                pdf.text(`Passage: ${transit.passage_id}`);
+                pdf.text(`Passing Date: ${transit.passing_by_date}`);
+                pdf.text(`Passing Hour: ${transit.passing_by_hour}`);
+                pdf.text(`Direction: ${transit.direction}`);
                 pdf.text(`Vehicle Type: ${transit.vehicle_type}`);
+                pdf.text(`Entrance Transit: ${transit.entrance_transit || 'N/A'}`);
+                pdf.text(`Entrance Passage: ${transit.entrance_passage || 'N/A'}`);
+                pdf.text(`Exit Passage: ${transit.exit_passage || 'N/A'}`);
+                pdf.text(`Amount: ${transit.amount || 'N/A'}`);
                 pdf.text('--------------------------------------------');
             });
 

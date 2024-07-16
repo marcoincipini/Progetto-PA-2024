@@ -60,6 +60,32 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
     });
   }
 
+  static async findByDateTimeRangeAndId(
+    startDateTime: string,
+    endDateTime: string,
+    park_id: number,
+  ): Promise<Bill[]> {
+    return this.findAll({
+      where: {
+        parking_id: park_id
+      },
+      include: [{
+        model: Transit,
+        as: 'exit',
+        where: {
+          [Op.and]: [
+            sequelize.where(
+              sequelize.fn('CONCAT', sequelize.col('passing_by_date'), ' ', sequelize.col('passing_by_hour')),
+              {
+                [Op.between]: [startDateTime, endDateTime],
+              }
+            ),
+          ],
+        },
+      }]
+    });
+  }
+
   static async findBillsOutsideRange(startDateTime: string, endDateTime: string): Promise<Bill[]> {
     return this.findAll({
       include: [

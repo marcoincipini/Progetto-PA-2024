@@ -2,6 +2,7 @@ import { DataTypes, Model, Optional, Sequelize, Op } from 'sequelize';
 import { DbConnections } from './DbConnections';
 import Passage from './Passage'; // Assuming Passage and Vehicle models are defined in separate files
 import Vehicle from './Vehicle';
+import Parking from './Parking';
 
 const sequelize: Sequelize = DbConnections.getConnection();
 
@@ -67,6 +68,60 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
     });
   }
 
+  static async countTransitsByParkingAndVehicleType(startDate: string, endDate: string) {
+    const result = await Transit.findAll({
+      where: {
+        passing_by_date: {
+          [Op.between]: [startDate, endDate]
+        }
+      },
+      include: [
+        {
+          model: Passage,
+          as: 'passage',
+          include: [
+            {
+              model: Parking,
+              as: 'parking'
+            }
+          ]
+        },
+        {
+          model: Vehicle,
+          as: 'vehicle'
+        }
+      ],
+      //group: ['parking.name', 'vehicle.vehicle_type'],
+      //attributes: ['parking.name', 'vehicle.vehicle_type', [sequelize.fn('COUNT', sequelize.col('transits.id')), 'transit_count']]
+    });
+    return result;
+  }
+
+  static async transitJoins(startDate: string, endDate: string, park_id:number): Promise<any[]> {
+    return await Transit.findAll({
+      where: {
+        passing_by_date: {
+          [Op.between]: [startDate, endDate]
+        }
+      },
+      include: [
+        {
+          model: Passage,
+          as: 'passage',
+          attributes: null,
+          where: {
+            parking_id: park_id
+          },
+        },
+        {
+          model: Vehicle,
+          as: 'vehicle',
+          attributes:['vehicle_type']
+        }
+      ]
+    });
+  }
+
 }
 Transit.init(
   {
@@ -123,6 +178,6 @@ Transit.init(
 
 // Define the associations between Transit and Passage & Vehicle (optional)
 Transit.belongsTo(Passage, { foreignKey: 'passage_id', as:'passage' });
-Transit.belongsTo(Vehicle, { foreignKey: 'plate' });
+Transit.belongsTo(Vehicle, { foreignKey: 'plate', as: 'vehicle'});
 
 export default Transit;

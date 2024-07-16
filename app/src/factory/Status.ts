@@ -3,6 +3,7 @@
 export enum HttpStatus {
     OK = 200,
     CREATED = 201,
+    NO_CONTENT = 204,   
     BAD_REQUEST = 400,
     UNAUTHORIZED = 401,
     FORBIDDEN = 403,
@@ -10,7 +11,7 @@ export enum HttpStatus {
     INTERNAL_SERVER_ERROR = 500
 }
 
-export enum Success {
+export enum SuccessStatus {
     //User login success message
     userLoginSuccess,
 
@@ -21,40 +22,15 @@ export enum Success {
     userAuthorized,
 
     //User CRUD success messages
-    userCreationSuccess,
-    userReadSuccess,
-    userUpdateSuccess,
-    userDeleteSuccess,
+    creationSuccess,
+    readSuccess,
+    updateSuccess,
+    deleteSuccess,
 
-    //Parking CRUD success messages
-    parkingCreationSuccess,
-    parkingReadSuccess,
-    parkingUpdateSuccess,
-    parkingDeleteSuccess,
-
-    //Passage CRUD success messages
-    passageCreationSuccess,
-    passageReadSuccess,
-    passageUpdateSuccess,
-    passageDeleteSuccess,
-
-    //Transit CRUD success messages
-    transitCreationSuccess,
-    transitReadSuccess,
-    transitUpdateSuccess,
-    transitDeleteSuccess,
-
-    //Fee CRUD success messages
-    feeCreationSuccess,
-    feeReadSuccess,
-    feeUpdateSuccess,
-    feeDeleteSuccess,
-
-    //
 }
 
 
-export enum Error {
+export enum ErrorStatus {
     //User login error messages
     userLoginError,
     emailNotValid,
@@ -71,12 +47,6 @@ export enum Error {
     //Passage login error message
     passageLoginError,
 
-    //CRUD bad request error messages
-    creationBadRequest,
-    readingBadRequest,
-    updateBadRequest,
-    deleteBadRequest,
-
     //General CRUD Internal Server Error messages
     creationInternalServerError,
     readInternalServerError,
@@ -85,12 +55,14 @@ export enum Error {
 
     //General errors
     resourceNotFoundError,
+    resourceAlreadyPresent,
     invalidDateFormat,
     invalidHourFormat,
     invalidFormat,
     invalidFormatOrResourceNotFound,
     routeNotFound,
     functionNotWorking,
+    parkingFull,
     defaultError
 
 }
