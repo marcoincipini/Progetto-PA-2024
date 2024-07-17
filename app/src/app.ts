@@ -10,20 +10,12 @@ import Bill from './models/Bill';
 import Transit from './models/Transit';
 import Passage from './models/Passage';
 
-import CRUDController from './controllers/CRUDController';
-import TransitStatusController from './controllers/TransitStatusController';
-import loginController from './controllers/LoginController';
-import GeneralParkingController from './controllers/GeneralParkingController';
-import DetailParkingController from './controllers/DetailParkingController';
-
-import authMiddleware from './middleware/auth';
-import globalCheck from './middleware/check'
-import validateData from './middleware/validateData';
 import routerApp from './routes/routes';
 import * as middlewareErrorHandler from './middleware/generalErrorMiddleware'
 
 import { errorFactory  } from './factory/ErrorMessage';
 import { ErrorStatus } from './factory/Status'
+import CRUDController from './controllers/CRUDController';
 //import { checkRole } from './middleware/check';
 
 dotenv.config();
@@ -37,8 +29,8 @@ async () => {
   try {
     await connection.authenticate();
     console.log('Connection has been established successfully.');
-  } catch (error) {
-    console.error('Unable to connect to the database:', error);
+  } catch (err) {
+    console.error('Unable to connect to the database:', err);
   }
 };
 
@@ -49,8 +41,6 @@ app.use(express.urlencoded({ extended: true }));
 // Usa le rotte definite nel router
 app.use(router);
 app.use(routerApp);
-router.get('/api/trans', authMiddleware.authenticateJWT, authMiddleware.isOperator, (req: any, res: any) => TransitStatusController.getTransits(req, res));
-
 
 router.get('/api/transits', async (req: any, res: any) => {
   try {
@@ -60,8 +50,8 @@ router.get('/api/transits', async (req: any, res: any) => {
       '2024-06-15 07:15:32'
     );
     res.json({ transits });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 //router.get('/api/try', (req: any, res: any) => GeneralParkingController.getStats (req, res));
@@ -71,7 +61,10 @@ router.get('/api/transits', async (req: any, res: any) => {
   res.json({ variabile });
 });
 */
-app.get('/api/try/:id', async (req: Request, res: Response) => DetailParkingController.getParkRevenues(req, res));
+app.post('/api/try/:passage_id', async (req: Request, res: Response) => CRUDController.createBill(req, res));
+
+//app.get('/api/try/', async (req: Request, res: Response) => res.json( await Transit.getEnterTransit('AB123CD')));
+
 /*
 router.get('/api/try', async (req: any, res: any) => {
   try {
@@ -79,19 +72,10 @@ router.get('/api/try', async (req: any, res: any) => {
     const transits = await Bill.findByDateTimeRange('2023-03-12 10:50:54',
       '2025-06-15 07:15:32');
     res.json({ transits });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
-*/
-/*
-router.get('/api/parkings/:id', authenticateJWT, ParkingCRUDController.getById);
-router.put('/api/parkings/:id', authenticateJWT, ParkingCRUDController.update);
-router.delete('/api/parkings/:id', authenticateJWT, ParkingCRUDController.delete);
-router.get('/api/passages', authenticateJWT, PassageController.getPassages);
-router.get('/api/transits',authenticateJWT, TransitController.getTransit);
-router.get('/api/bills', authenticateJWT, BillController.getBills);
-router.get('/api/fees', authenticateJWT, FeeController.getFees);
 */
 
 //all other requests (from all methods) that are not the ones implemented above return 404 not found error

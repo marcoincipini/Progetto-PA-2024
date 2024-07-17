@@ -23,6 +23,17 @@ class Parking extends Model<ParkingAttributes, ParkingCreationAttributes> implem
   public day_starting_hour!: string;
   public day_finishing_hour!: string;
   public deletedAt?: Date; // Optional deletedAt attribute for paranoid
+
+  static async getParkingData(nameP: string): Promise<Parking | null> {
+    try {
+      const parking = await this.findOne({
+        where: { name: nameP }
+      });
+      return parking;
+    } catch (err) {
+      return null;
+    }
+  }
 }
 
 

@@ -30,20 +30,6 @@ class passageLoginSuccess implements Message {
     }
 }
 
-class userAuthorized implements Message {
-    private specificMessage: string;
-    constructor(specificMessage: string) {
-        this.specificMessage = specificMessage;
-    }
-    getResponse(): Response {
-        return {
-            status: HttpStatus.OK,
-            message: `OK - User authorized for this operation: ${this.specificMessage}`,
-            type: "application/json"
-        }
-    }
-}
-
 class creationSuccess implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -113,6 +99,7 @@ class defaultSuccess implements Message {
       };
     }
   }
+
 export class successFactory extends MessageFactory {
 
     getMessage(type: SuccessStatus, specificMessage?: string): Message {
@@ -124,9 +111,6 @@ export class successFactory extends MessageFactory {
                 break;
             case SuccessStatus.passageLoginSuccess:
                 successMessage = new passageLoginSuccess(specificMessage);
-                break;
-            case SuccessStatus.userAuthorized:
-                successMessage = new userAuthorized(specificMessage);
                 break;
             case SuccessStatus.creationSuccess:
                 successMessage = new creationSuccess(specificMessage);

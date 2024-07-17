@@ -22,6 +22,38 @@ class Passage extends Model<PassageAttributes, PassageCreationAttributes> implem
   public entrance!: boolean;
   public exit!: boolean;
   public deletedAt?: Date; // Optional deletedAt attribute for paranoid
+
+  static async getPassageData(parkingId: number, nameP: string): Promise<Passage | null> {
+    try {
+      const passage = await this.findOne({
+        where: {
+          parking_id: parkingId,
+          name: nameP
+        }
+      });
+      return passage;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  static async passageJoin(passageId: number): Promise<Passage | null> {
+    try {
+
+      const passage = await this.findByPk(passageId, {
+        include: [
+          {
+            model: Parking,
+            as: 'parking',
+            attributes: ['parking_id', 'day_starting_hour', 'day_finishing_hour']
+          }
+        ]
+      });
+      return passage;
+    } catch (err) {
+      return null;
+    }
+  }
 }
 
 Passage.init(

@@ -6,10 +6,12 @@ import Passage from '../models/Passage';
 import PDFDocument from 'pdfkit';
 import Bill from '../models/Bill';
 import Parking from '../models/Parking';
-import { errorFactory  } from '../factory/ErrorMessage';
-import { ErrorStatus } from '../factory/Status'
+import { errorFactory } from '../factory/ErrorMessage';
+import { successFactory } from '../factory/SuccessMessage';
+import { ErrorStatus, SuccessStatus } from '../factory/Status'
 
 const ErrorFac: errorFactory = new errorFactory();
+const SuccessFac: successFactory = new successFactory();
 
 type timeline = {
     index: number;
@@ -29,26 +31,30 @@ type Parkings = {
 
 class GeneralParkingController {
 
-    async getRevenues(req: Request, res: Response): Promise<Response> {
+    async getRevenues(req: Request, res: Response): Promise<any> {
         const startDate = req.query.startDate as string;
         const endDate = req.query.endDate as string;
 
-        let selectedBill = await Bill.findByDateTimeRange(startDate, endDate);
-        
-        let parkings: Parkings[] = [];
-        for (const bill of selectedBill) {
-            let selectedParkings = parkings.find((parking) => parking.id === bill.parking_id);
-            if (selectedParkings) {
-                selectedParkings.sum += parseFloat(bill.amount as unknown as string);
+        try {
+            let selectedBill = await Bill.findByDateTimeRange(startDate, endDate);
 
-            } else {
-                parkings.push({ id: bill.parking_id, sum: parseFloat(bill.amount as unknown as string) });
+            let parkings: Parkings[] = [];
+            for (const bill of selectedBill) {
+                let selectedParkings = parkings.find((parking) => parking.id === bill.parking_id);
+                if (selectedParkings) {
+                    selectedParkings.sum += parseFloat(bill.amount as unknown as string);
+
+                } else {
+                    parkings.push({ id: bill.parking_id, sum: parseFloat(bill.amount as unknown as string) });
+                }
             }
+            return this.selectFormatAverageRevenue(parkings, req, res);
+        } catch (err) {
+            ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating revenues for parking');
         }
-        return this.selectFormatAverageRevenue(parkings, req, res);
-    }
 
-    async averageVacanciesCalculator(req: Request, res: Response): Promise<Response> {
+    }
+    async averageVacanciesCalculator(req: Request, res: Response): Promise<any> {
         const startDate = req.query.startDate as string;
         const endDate = req.query.endDate as string;
         let start_time: Date = new Date(startDate);
@@ -62,25 +68,28 @@ class GeneralParkingController {
 
         let average_res: average[][] = [];
 
-        const parkings = await Parking.findAll();
-        const parkings_number: number = parkings.length;
+        try {
+            const parkings = await Parking.findAll();
+            const parkings_number: number = parkings.length;
 
-        start_time.setHours(start_time.getHours() + 1);
-        while (start_time < end_time) {
-            matrix_timeline.push({ index: step_counter, hour: start_time.getHours() })
-            step_counter += 1;
             start_time.setHours(start_time.getHours() + 1);
+            while (start_time < end_time) {
+                matrix_timeline.push({ index: step_counter, hour: start_time.getHours() })
+                step_counter += 1;
+                start_time.setHours(start_time.getHours() + 1);
+            }
+
+            vacancies_matrix = Array.from({ length: parkings_number }, () =>
+                new Array(step_counter).fill(0).map(() => Math.floor(Math.random() * (50 - 5 + 1)) + 5));
+
+            for (const parking of parkings) {
+                average_res.push(this.averageCalc(parking, vacancies_matrix, matrix_timeline));
+            }
+
+            return this.selectFormatAverageVacancies(average_res, req, res);
+        } catch (err) {
+            ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating average vacancies for parking');
         }
-
-        vacancies_matrix = Array.from({ length: parkings_number }, () =>
-            new Array(step_counter).fill(0).map(() => Math.floor(Math.random() * (50 - 5 + 1)) + 5));
-
-        for (const parking of parkings) {
-            average_res.push(this.averageCalc(parking, vacancies_matrix, matrix_timeline));
-        }
-
-        return this.selectFormatAverageVacancies(average_res, req, res);
-
     }
 
     averageCalc(parking: Parking, vacancies_matrix: number[][], matrix_timeline: timeline[]): any {
@@ -119,7 +128,9 @@ class GeneralParkingController {
 
     async selectFormatAverageVacancies(average: average[][], req: Request, res: Response) {
         if (req.query.format === 'json' || !req.query.format) {
-            return res.status(200).json({ average });
+            var result: any;
+            const successMessage = SuccessFac.getMessage(SuccessStatus.defaultSuccess, `Calculating average vacancies for parking succeded`);
+            res.json({ message: successMessage, data: { average }});
         } else if (req.query.format === 'pdf') {
             const pdf = new PDFDocument();
             pdf.text('AVERAGE VACANCIES REPORT');
@@ -144,7 +155,9 @@ class GeneralParkingController {
 
     async selectFormatAverageRevenue(parkings: Parkings[], req: Request, res: Response) {
         if (req.query.format === 'json' || !req.query.format) {
-            return res.status(200).json({ parkings });
+            var result: any;
+            const successMessage = SuccessFac.getMessage(SuccessStatus.defaultSuccess, `Calculating average revenue for parking succeded`);
+            res.json({ message: successMessage, data: { parkings }});
         } else if (req.query.format === 'pdf') {
             const pdf = new PDFDocument();
             pdf.text('AVERAGE REVENUE REPORT');

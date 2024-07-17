@@ -21,7 +21,7 @@ class authMiddleware {
         if (!validateEmail(user.email)){
             next(ErrorFac.getMessage(ErrorStatus.emailNotValid));
         }
-        if (userData && userData.role === 'operatore') {
+        if (userData.role === 'operatore' && userData) {
             next();
         } else {
             next(ErrorFac.getMessage(ErrorStatus.userNotAuthorized));
@@ -39,7 +39,7 @@ class authMiddleware {
                     next(ErrorFac.getMessage(ErrorStatus.emailNotValid));
                 }
                 const userData = await User.getUserData(user.email);
-                if (userData && userData.role === 'operatore') {
+                if ( userData.role === 'operatore'&& userData) {
                     return next();
                 }
             }
@@ -54,9 +54,8 @@ class authMiddleware {
     
             // Se nessuna delle condizioni è soddisfatta, ritorna 403
             next(ErrorFac.getMessage(ErrorStatus.userNotAuthorized));
-        } catch (error) {  
-            const specificMessage = "Error in checking the logged User/passage" 
-            next(ErrorFac.getMessage(ErrorStatus.defaultError, specificMessage));
+        } catch (err) {  
+            next(ErrorFac.getMessage(ErrorStatus.defaultError, "Error in checking the logged User/passage"));
         }
     }
 
@@ -80,7 +79,7 @@ class authMiddleware {
             // Aggiungi il dato dell'utente al req per l'utilizzo successivo nei controller
             req.body.user = user;
             next();
-        } catch (error) {
+        } catch (err) {
             next(ErrorFac.getMessage(ErrorStatus.userLoginError));
         }
     }
@@ -96,14 +95,13 @@ class authMiddleware {
             const passage = await Passage.findOne({ where: { name } });
 
             if (!passage) {
-                const specificMessage = (passage + 'does not exist');
-                next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, specificMessage));
+                next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, `passage does not exist`));
             }
 
             // Aggiungi il dato del passage al req per l'utilizzo successivo nei controller
             req.body.passage = passage;
             next();
-        } catch (error) {
+        } catch (err) {
             next(ErrorFac.getMessage(ErrorStatus.passageLoginError));
         }
     }
@@ -113,8 +111,7 @@ class authMiddleware {
         const token = req.header('Authorization')?.split(' ')[1];
     
         if (!token) {
-            const specificMessage = 'Access token is missing or invalid';
-            next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, specificMessage));
+            next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, 'Access token is missing or invalid'));
         }
     
         try {
@@ -132,7 +129,7 @@ class authMiddleware {
             }
     
             next();
-        } catch (error) {
+        } catch (err) {
             next(ErrorFac.getMessage(ErrorStatus.jwtNotValid));
         }
     }

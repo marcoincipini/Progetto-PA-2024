@@ -31,8 +31,7 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
             where: { email: userEmail }
         });
         return user;
-    } catch (error) {
-        console.error('Errore durante il recupero dei dati utente:', error);
+    } catch (err) {
         return null;
         }
     }   

@@ -26,6 +26,33 @@ class Fee extends Model<FeeAttributes, FeeCreationAttributes> implements FeeAttr
   public night!: boolean;
   public festive!: boolean;
   public deletedAt?: Date; // Optional deletedAt attribute for paranoids
+
+  static async getFeeData(parkingId: number, nameF: string): Promise<Fee | null> {
+    try {
+      const fee = await this.findOne({
+        where: { 
+          parking_id: parkingId,
+          name: nameF
+        }
+      });
+      return fee;
+    } catch (err) {
+      return null;
+    }
+  }
+  static async getFee(vehicleType: string, parkingId: number): Promise<Fee[]> {
+    try {
+      const fee = await this.findAll({
+        where: { 
+          parking_id: parkingId,
+          vehicle_type: vehicleType
+        }
+      });
+      return fee;
+    } catch (err) {
+      return null;
+    }
+  }
 }
 
 Fee.init(

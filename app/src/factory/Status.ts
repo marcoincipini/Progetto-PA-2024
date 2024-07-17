@@ -18,15 +18,14 @@ export enum SuccessStatus {
     //Passage login success message
     passageLoginSuccess,
 
-    //Authorization success message
-    userAuthorized,
-
     //User CRUD success messages
     creationSuccess,
     readSuccess,
     updateSuccess,
     deleteSuccess,
-
+    
+    //Default success message
+    defaultSuccess
 }
 
 
@@ -63,6 +62,8 @@ export enum ErrorStatus {
     routeNotFound,
     functionNotWorking,
     parkingFull,
+
+    //Default error message
     defaultError
 
 }

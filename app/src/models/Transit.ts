@@ -29,6 +29,23 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
   public direction!: string;
   public vehicle_type!: string;
   public deletedAt?: Date; // Optional deletedAt attribute for paranoid
+
+  static async getTransitData(passageId: number, plateT: string, passingByDate: Date, passingByHour: string): Promise<Transit | null> {
+    try {
+      const transit = await this.findOne({
+        where: {
+          passage_id: passageId,
+          plate: plateT,
+          passing_by_date: passingByDate,
+          passing_by_hour: passingByHour
+        }
+      });
+      return transit;
+    } catch (err) {
+      return null;
+    }
+  }
+
   static async findByPlatesAndDateTimeRange(
     plates: string[],
     startDateTime: string,
@@ -51,7 +68,7 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
     });
   }
 
-  static async findByDateRange(startDate: string, endDate: string): Promise<any[]> {
+  static async findByDateRange(startDateTime: string, endDateTime: string): Promise<any[]> {
     return await Transit.findAll({
       include: [
         {
@@ -61,19 +78,29 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
         }
       ],
       where: {
-        passing_by_date: {
-          [Op.between]: [startDate, endDate]
-        }
+        [Op.and]: [
+          sequelize.where(
+            sequelize.fn('CONCAT', sequelize.col('passing_by_date'), ' ', sequelize.col('passing_by_hour')),
+            {
+              [Op.between]: [startDateTime, endDateTime],
+            }
+          ),
+        ],
       }
     });
   }
 
-  static async countTransitsByParkingAndVehicleType(startDate: string, endDate: string) {
+  static async countTransitsByParkingAndVehicleType(startDateTime: string, endDateTime: string) {
     const result = await Transit.findAll({
       where: {
-        passing_by_date: {
-          [Op.between]: [startDate, endDate]
-        }
+        [Op.and]: [
+          sequelize.where(
+            sequelize.fn('CONCAT', sequelize.col('passing_by_date'), ' ', sequelize.col('passing_by_hour')),
+            {
+              [Op.between]: [startDateTime, endDateTime],
+            }
+          ),
+        ],
       },
       include: [
         {
@@ -91,18 +118,21 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
           as: 'vehicle'
         }
       ],
-      //group: ['parking.name', 'vehicle.vehicle_type'],
-      //attributes: ['parking.name', 'vehicle.vehicle_type', [sequelize.fn('COUNT', sequelize.col('transits.id')), 'transit_count']]
     });
     return result;
   }
 
-  static async transitJoins(startDate: string, endDate: string, park_id:number): Promise<any[]> {
+  static async transitJoins(startDateTime: any, endDateTime: any, park_id: number): Promise<any[]> {
     return await Transit.findAll({
       where: {
-        passing_by_date: {
-          [Op.between]: [startDate, endDate]
-        }
+        [Op.and]: [
+          sequelize.where(
+            sequelize.fn('CONCAT', sequelize.col('passing_by_date'), ' ', sequelize.col('passing_by_hour')),
+            {
+              [Op.between]: [startDateTime, endDateTime],
+            }
+          ),
+        ],
       },
       include: [
         {
@@ -116,9 +146,26 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
         {
           model: Vehicle,
           as: 'vehicle',
-          attributes:['vehicle_type']
+          attributes: ['vehicle_type']
         }
       ]
+    });
+  }
+
+  static async getEnterTransit(plates: string): Promise<any> {
+    return await Transit.findAll({
+      include: [
+        {
+          model: Passage,
+          as: 'passage',
+          attributes: ['parking_id'] // Non includere gli attributi del modello Passage nei risultati
+        }
+      ],
+      where: {
+        direction: 'E',
+        plate: plates,
+      },
+      order: [[sequelize.fn('CONCAT', sequelize.col('passing_by_date'), ' ', sequelize.col('passing_by_hour')), 'DESC']], limit: 1, 
     });
   }
 
@@ -177,7 +224,7 @@ Transit.init(
 );
 
 // Define the associations between Transit and Passage & Vehicle (optional)
-Transit.belongsTo(Passage, { foreignKey: 'passage_id', as:'passage' });
-Transit.belongsTo(Vehicle, { foreignKey: 'plate', as: 'vehicle'});
+Transit.belongsTo(Passage, { foreignKey: 'passage_id', as: 'passage' });
+Transit.belongsTo(Vehicle, { foreignKey: 'plate', as: 'vehicle' });
 
 export default Transit;

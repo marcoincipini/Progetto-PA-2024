@@ -19,6 +19,17 @@ class Vehicle extends Model<VehicleAttributes, VehicleCreationAttributes> implem
   public user_id!: number;
   public deletedAt?: Date; // Optional deletedAt attribute for paranoid
 
+  static async getVehicleData(plate: string): Promise<Vehicle | null> {
+    try {
+      const vehicle = await this.findOne({
+        where: { plate: plate }
+      });
+      return vehicle;
+    } catch (err) {
+      return null;
+    }
+  }
+
   static async getVehiclesUser(email: string): Promise<Vehicle[]> {
     try {
       const vehicles = await Vehicle.findAll({
@@ -29,9 +40,8 @@ class Vehicle extends Model<VehicleAttributes, VehicleCreationAttributes> implem
         }]
       });
       return vehicles;
-    } catch (error) {
-      console.error('Errore durante il recupero dei veicoli:', error);
-      throw error;
+    } catch (err) {
+      return null;
     }
   }
 }

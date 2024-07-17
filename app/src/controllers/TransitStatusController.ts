@@ -1,56 +1,45 @@
 import { Request, Response } from 'express';
-import { Op } from 'sequelize';
 import Transit from '../models/Transit';
 import Vehicle from '../models/Vehicle';
-import Passage from '../models/Passage';
 import PDFDocument from 'pdfkit';
 import Bill from '../models/Bill';
-import { errorFactory  } from '../factory/ErrorMessage';
-import { ErrorStatus } from '../factory/Status'
+import { errorFactory } from '../factory/ErrorMessage';
+import { successFactory } from '../factory/SuccessMessage';
+import { ErrorStatus, SuccessStatus } from '../factory/Status'
 
 const ErrorFac: errorFactory = new errorFactory();
+const SuccessFac: successFactory = new successFactory();
 
 class TransitStatusController {
 
 
-    async getTransits(req: Request, res: Response): Promise<Response> {
+    async getTransits(req: Request, res: Response): Promise<any> {
         try {
-            // Gestione dei parametri della query
-            let plates: string[] = [];
-            if (typeof req.query.plates === 'string') {
-                plates = req.query.plates.split(',').map((plate: string) => plate.trim());
-            } else if (Array.isArray(req.query.plates)) {
-                plates = (req.query.plates as string[]).map((plate: string) => plate.trim());
-            }
 
-            const startDate = req.query.startDate as string;
-            const endDate = req.query.endDate as string;
+            const { plates, startDate, endDate } = req.query;
             const { role } = req.body.user;
 
             // Filtra per targhe solo se l'utente è un automobilista
-            if (role == 'operatore' && plates.length > 0) {
+            if (role == 'operatore') {
                 console.log("sono un operatore");
                 let exitTransitList = await this.collectTransitsAndBills(plates, startDate, endDate);
                 return this.selectFormat(exitTransitList, req, res);
-            } else if (role == 'automobilista' && plates.length > 0) {
-                console.log("sono un automobilista");
+            } else {
+
                 let selectedPlates = await this.checkPlates(plates, req, res);
 
                 if (selectedPlates) {
-                    console.log("sono una funzione");
+
                     let exitTransitList = await this.collectTransitsAndBills(plates, startDate, endDate);
-                    this.selectFormat(exitTransitList, req, res);
-                } else {
-                    res.status(400).json({ message: 'utente non autorizzato' });
+                    return this.selectFormat(exitTransitList, req, res);
                 }
             }
-        } catch (error) {
-            console.error('Error retrieving transits:', error);
-            return res.status(500).json({ message: 'Internal server error' });
+        } catch (err) {
+            return ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error retrieving transits');
         }
     }
 
-    async collectTransitsAndBills(plates: string[], startDate: string, endDate: string) {
+    async collectTransitsAndBills(plates: any, startDate: any, endDate: any) {
 
         let selectedTransits = await Transit.findByPlatesAndDateTimeRange(plates, startDate, endDate);
         const TransitID: number[] = selectedTransits.map((item) => item.id);
@@ -88,14 +77,17 @@ class TransitStatusController {
                 amount: bill.amount
             });
         }
-
         return exitTransitList;
+
     }
 
     async selectFormat(transit: any[], req: Request, res: Response) {
 
         if (req.query.format === 'json' || !req.query.format) {
-            return res.status(200).json({ transit });
+            var result: any;
+            const successMessage = SuccessFac.getMessage(SuccessStatus.defaultSuccess, `Recovering Transit Report succeded`);
+            result = res.json({ message: successMessage, data: { transit }});
+            return result;
         } else if (req.query.format === 'pdf') {
             const pdf = new PDFDocument();
             pdf.text('TRANSIT REPORT');
@@ -120,15 +112,15 @@ class TransitStatusController {
         }
     }
 
-    async checkPlates(plates: string[], req: Request, res: Response): Promise<boolean> {
-        const { email } = req.body.user;
-        const userPlat = await Vehicle.getVehiclesUser(email);
-        let userPlates: string[] = userPlat.map((item) => item.plate);
-        console.log(plates);
-        console.log(userPlates);
-        console.log(plates.every(elem => userPlates.includes(elem)));
-        return plates.every(elem => userPlates.includes(elem));
-
+    async checkPlates(plates: any, req: Request, res: Response): Promise<any> {
+        try {
+            const { email } = req.body.user;
+            const userPlat = await Vehicle.getVehiclesUser(email);
+            let userPlates: string[] = userPlat.map((item) => item.plate);
+            return plates.every((elem: string) => userPlates.includes(elem));
+        } catch (err) {
+            return ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error in checking existing plates');
+        }
     }
 }
 

@@ -24,6 +24,17 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
   public exit_transit!: number;
   public deletedAt?: Date; // Optional deletedAt attribute for paranoid
 
+  static async getBillData(billId: number): Promise<Bill | null> {
+    try {
+      const bill = await this.findOne({
+        where: { id: billId }
+      });
+      return bill;
+    } catch (err) {
+      return null;
+    }
+  }
+
   static async findBillByExitTransits(transits: number[]): Promise<Bill[]> {
     const bills = await Bill.findAll({
       include: [{
@@ -61,8 +72,8 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
   }
 
   static async findByDateTimeRangeAndId(
-    startDateTime: string,
-    endDateTime: string,
+    startDateTime: any,
+    endDateTime: any,
     park_id: number,
   ): Promise<Bill[]> {
     return this.findAll({
