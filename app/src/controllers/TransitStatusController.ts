@@ -1,3 +1,4 @@
+// Import necessary modules and types
 import { Request, Response } from 'express';
 import Transit from '../models/Transit';
 import Vehicle from '../models/Vehicle';
@@ -7,29 +8,28 @@ import { errorFactory } from '../factory/ErrorMessage';
 import { successFactory } from '../factory/SuccessMessage';
 import { ErrorStatus, SuccessStatus } from '../factory/Status'
 
+// Create instances of error and success message factories
 const ErrorFac: errorFactory = new errorFactory();
 const SuccessFac: successFactory = new successFactory();
 
+// Define the TransitStatusController class
 class TransitStatusController {
 
-
+    // Method to get transits
     async getTransits(req: Request, res: Response): Promise<any> {
         try {
-
             const { plates, startDate, endDate } = req.query;
             const { role } = req.body.user;
 
-            // Filtra per targhe solo se l'utente è un automobilista
+            // Filter by plates only if the user is an operator
             if (role == 'operatore') {
                 console.log("sono un operatore");
                 let exitTransitList = await this.collectTransitsAndBills(plates, startDate, endDate);
                 return this.selectFormat(exitTransitList, req, res);
             } else {
-
                 let selectedPlates = await this.checkPlates(plates, req, res);
 
                 if (selectedPlates) {
-
                     let exitTransitList = await this.collectTransitsAndBills(plates, startDate, endDate);
                     return this.selectFormat(exitTransitList, req, res);
                 }
@@ -39,14 +39,14 @@ class TransitStatusController {
         }
     }
 
+    // Method to collect transits and bills
     async collectTransitsAndBills(plates: any, startDate: any, endDate: any) {
-
         let selectedTransits = await Transit.findByPlatesAndDateTimeRange(plates, startDate, endDate);
         const TransitID: number[] = selectedTransits.map((item) => item.id);
         let fatture = await Bill.findBillByExitTransits(TransitID);
         let exitTransitList: any[] = [];
 
-        // Popola l'array transitiUscita con tutti i transiti
+        // Populate exitTransitList with all transits
         for (const transit of selectedTransits) {
             if (transit.direction == 'E') {
                 exitTransitList.push({
@@ -62,7 +62,7 @@ class TransitStatusController {
                 });
             }
         }
-        // Aggiorna l'array transitiUscita con le informazioni delle fatture
+        // Update exitTransitList with bill information
         for (const bill of fatture) {
             const exitTransit: Transit = selectedTransits.find(tran => tran.id === bill.exit_transit);
             exitTransitList.push({
@@ -78,15 +78,14 @@ class TransitStatusController {
             });
         }
         return exitTransitList;
-
     }
 
+    // Method to select output format (JSON or PDF)
     async selectFormat(transit: any[], req: Request, res: Response) {
-
         if (req.query.format === 'json' || !req.query.format) {
             var result: any;
             const successMessage = SuccessFac.getMessage(SuccessStatus.defaultSuccess, `Recovering Transit Report succeded`);
-            result = res.json({ message: successMessage, data: { transit }});
+            result = res.json({ message: successMessage, data: { transit } });
             return result;
         } else if (req.query.format === 'pdf') {
             const pdf = new PDFDocument();
@@ -112,6 +111,7 @@ class TransitStatusController {
         }
     }
 
+    // Method to check if plates belong to the user
     async checkPlates(plates: any, req: Request, res: Response): Promise<any> {
         try {
             const { email } = req.body.user;
@@ -124,4 +124,5 @@ class TransitStatusController {
     }
 }
 
+// Export an instance of the TransitStatusController
 export default new TransitStatusController();

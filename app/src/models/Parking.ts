@@ -1,8 +1,12 @@
+// Import necessary modules from 'sequelize'
 import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+// Import the database connection from 'DbConnections'
 import { DbConnections } from './DbConnections';
 
+// Get the database connection
 const sequelize: Sequelize = DbConnections.getConnection();
 
+// Define the attributes for the 'Parking' model
 interface ParkingAttributes {
   id: number;
   name: string;
@@ -10,11 +14,13 @@ interface ParkingAttributes {
   occupied_spots: number;
   day_starting_hour: string; // Use appropriate data type for time
   day_finishing_hour: string; // Use appropriate data type for time
-  deletedAt?: Date; // Optional deletedAt attribute for paranoid
+  deletedAt?: Date; // Optional deletedAt attribute for soft deletion
 }
 
+// Define the attributes for creating a new 'Parking' instance
 interface ParkingCreationAttributes extends Optional<ParkingAttributes, 'id'> { }
 
+// Define the 'Parking' model
 class Parking extends Model<ParkingAttributes, ParkingCreationAttributes> implements ParkingAttributes {
   public id!: number;
   public name!: string;
@@ -22,8 +28,9 @@ class Parking extends Model<ParkingAttributes, ParkingCreationAttributes> implem
   public occupied_spots!: number;
   public day_starting_hour!: string;
   public day_finishing_hour!: string;
-  public deletedAt?: Date; // Optional deletedAt attribute for paranoid
+  public deletedAt?: Date; // Optional deletedAt attribute for soft deletion
 
+  // Method to get parking data based on name
   static async getParkingData(nameP: string): Promise<Parking | null> {
     try {
       const parking = await this.findOne({
@@ -36,7 +43,7 @@ class Parking extends Model<ParkingAttributes, ParkingCreationAttributes> implem
   }
 }
 
-
+// Initialize the 'Parking' model
 Parking.init(
   {
     id: {
@@ -79,6 +86,5 @@ Parking.init(
   }
 );
 
-
-
+// Export the 'Parking' model
 export default Parking;

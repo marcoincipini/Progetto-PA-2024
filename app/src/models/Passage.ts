@@ -1,28 +1,36 @@
+// Import necessary modules from 'sequelize'
 import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+// Import the database connection from 'DbConnections'
 import { DbConnections } from './DbConnections';
+// Import the 'Parking' model
 import Parking from './Parking';
 
+// Get the database connection
 const sequelize: Sequelize = DbConnections.getConnection();
 
+// Define the attributes for the 'Passage' model
 interface PassageAttributes {
   id: number;
   parking_id: number; // Use camelCase for property names
   name: string;
   entrance: boolean;
   exit: boolean;
-  deletedAt?: Date; // Optional deletedAt attribute for paranoid
+  deletedAt?: Date; // Optional deletedAt attribute for soft deletion
 }
 
+// Define the attributes for creating a new 'Passage' instance
 interface PassageCreationAttributes extends Optional<PassageAttributes, 'id'> { }
 
+// Define the 'Passage' model
 class Passage extends Model<PassageAttributes, PassageCreationAttributes> implements PassageAttributes {
   public id!: number;
   public parking_id!: number;
   public name!: string;
   public entrance!: boolean;
   public exit!: boolean;
-  public deletedAt?: Date; // Optional deletedAt attribute for paranoid
+  public deletedAt?: Date; // Optional deletedAt attribute for soft deletion
 
+  // Method to get passage data based on parkingId and name
   static async getPassageData(parkingId: number, nameP: string): Promise<Passage | null> {
     try {
       const passage = await this.findOne({
@@ -37,9 +45,9 @@ class Passage extends Model<PassageAttributes, PassageCreationAttributes> implem
     }
   }
 
+  // Method to join passage data with parking data
   static async passageJoin(passageId: number): Promise<Passage | null> {
     try {
-
       const passage = await this.findByPk(passageId, {
         include: [
           {
@@ -56,6 +64,7 @@ class Passage extends Model<PassageAttributes, PassageCreationAttributes> implem
   }
 }
 
+// Initialize the 'Passage' model
 Passage.init(
   {
     id: {
@@ -96,7 +105,8 @@ Passage.init(
   }
 );
 
-// Define the association between Passage and Parking (optional)
+// Define the association between Passage and Parking
 Passage.belongsTo(Parking, { foreignKey: 'parking_id', as: 'parking', onDelete: 'CASCADE' });
 
+// Export the 'Passage' model
 export default Passage;

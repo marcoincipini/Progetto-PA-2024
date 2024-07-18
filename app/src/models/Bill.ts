@@ -1,29 +1,37 @@
+// Import necessary modules from 'sequelize'
 import { DataTypes, Model, Op, Optional, Sequelize } from 'sequelize';
+// Import the database connection from 'DbConnections'
 import { DbConnections } from './DbConnections';
-import Parking from './Parking'; // Assuming Parcheggio and Transito models are defined in separate files
+// Import the 'Parking' and 'Transit' models
+import Parking from './Parking'; // Assuming Parking and Transit models are defined in separate files
 import Transit from './Transit';
 
+// Get the database connection
 const sequelize: Sequelize = DbConnections.getConnection();
 
+// Define the attributes for the 'Bill' model
 interface BillAttributes {
   id: number;
   parking_id: number;
   amount: number;
   entrance_transit: number;
   exit_transit: number;
-  deletedAt?: Date; // Optional deletedAt attribute for paranoid
+  deletedAt?: Date; // Optional deletedAt attribute for soft deletion
 }
 
+// Define the attributes for creating a new 'Bill' instance
 interface BillCreationAttributes extends Optional<BillAttributes, 'id'> { }
 
+// Define the 'Bill' model
 class Bill extends Model<BillAttributes, BillCreationAttributes> implements BillAttributes {
   public id!: number;
   public parking_id!: number;
   public amount!: number;
   public entrance_transit!: number;
   public exit_transit!: number;
-  public deletedAt?: Date; // Optional deletedAt attribute for paranoid
+  public deletedAt?: Date; // Optional deletedAt attribute for soft deletion
 
+  // Method to get bill data based on billId
   static async getBillData(billId: number): Promise<Bill | null> {
     try {
       const bill = await this.findOne({
@@ -35,6 +43,7 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
     }
   }
 
+  // Method to find bills by exit transits
   static async findBillByExitTransits(transits: number[]): Promise<Bill[]> {
     const bills = await Bill.findAll({
       include: [{
@@ -49,6 +58,8 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
     });
     return bills;
   }
+
+  // Method to find bills by date time range
   static async findByDateTimeRange(
     startDateTime: string,
     endDateTime: string
@@ -71,6 +82,7 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
     });
   }
 
+  // Method to find bills by date time range and parking id
   static async findByDateTimeRangeAndId(
     startDateTime: any,
     endDateTime: any,
@@ -97,6 +109,7 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
     });
   }
 
+  // Method to find bills outside a date time range
   static async findBillsOutsideRange(startDateTime: string, endDateTime: string): Promise<Bill[]> {
     return this.findAll({
       include: [
@@ -133,20 +146,7 @@ class Bill extends Model<BillAttributes, BillCreationAttributes> implements Bill
   }
 }
 
-/*
-return await this.findAll({
-      include: [
-        {
-          model: Transit,
-          where: {
-            exit_transit: {
-              [Op.in]: transits,
-            },
-          }
-        }
-      ]}
-    )
-      */
+// Initialize the 'Bill' model
 Bill.init(
   {
     id: {
@@ -158,7 +158,7 @@ Bill.init(
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Parking, // Reference the Parcheggio model
+        model: Parking, // Reference the Parking model
         key: 'id',
       },
     },
@@ -193,9 +193,10 @@ Bill.init(
   }
 );
 
-// Define the associations between Bill and Parcheggio & Transito (optional)
+// Define the associations between Bill and Parking & Transit (optional)
 Bill.belongsTo(Parking, { foreignKey: 'parking_id', onDelete: 'CASCADE' });
 Bill.belongsTo(Transit, { foreignKey: 'entrance_transit', as: 'entrance', onDelete: 'CASCADE' }); // Use alias for clarity
 Bill.belongsTo(Transit, { foreignKey: 'exit_transit', as: 'exit', onDelete: 'CASCADE' }); // Use alias for clarity
 
+// Export the 'Bill' model
 export default Bill;
