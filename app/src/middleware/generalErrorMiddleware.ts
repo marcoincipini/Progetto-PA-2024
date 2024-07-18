@@ -10,6 +10,6 @@ export function routeNotFound(req: any, res: any, next: any) {
 
 //error handler from the middleware
 export function generalErrorHandler(err: any, req: any, res: any, next: any) {
-    var response = err.getResponse()
+    var response = (err).getResponse();
     res.setHeader('Content-Type', response.type).status(response.status).send(JSON.stringify({"response" : response.message}))
 }

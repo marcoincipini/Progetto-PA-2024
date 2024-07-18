@@ -19,7 +19,7 @@ class validateData {
         if (!id || isNaN(Number(id))) {
             return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, 'Invalid ID'));
         }
-        
+
 
         next();
     }
@@ -80,7 +80,7 @@ class validateData {
         } catch (err) {
             return next(ErrorFac.getMessage(ErrorStatus.defaultError));
         }
-        next();
+
     }
 
     async validateParkingDataCreation(req: Request, res: Response, next: NextFunction) {
@@ -480,7 +480,7 @@ class validateData {
 
     validateTransitStatusControllerRequest(req: Request, res: Response, next: NextFunction) {
 
-        const dateTimeRegex = /^\d{4}-\d{2}-\d{2}%\d{2}:\d{2}:\d{2}$/;
+        const dateTimeRegex = /^\d{4}-\d{2}-\d{2} d{2}:\d{2}:\d{2}$/;
         const { plates, startDate, endDate, format } = req.query;
         const { role } = req.body;
 
@@ -498,7 +498,7 @@ class validateData {
             return next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, 'Plate not found, is required'));
         };
 
-        if (!isValidString(startDate) && !startDate && !dateTimeRegex.test(startDate as string)) {
+        if (!isValidString(startDate) || !dateTimeRegex.test(startDate as string) || !startDate) {
             return next(
                 ErrorFac.getMessage(
                     ErrorStatus.invalidFormat,
@@ -506,7 +506,7 @@ class validateData {
                 ));
         }
 
-        if (!isValidString(endDate) && !endDate && !dateTimeRegex.test(endDate as string)) {
+        if (!isValidString(endDate) || !dateTimeRegex.test(endDate as string) || !endDate) {
             return next(
                 ErrorFac.getMessage(
                     ErrorStatus.invalidFormat,
@@ -514,42 +514,49 @@ class validateData {
                 ));
         }
 
-        if ((!isValidString(role) || role.length > 32 || (role !== 'operatore' && role !== 'automobilista')) && !role) {
+        if ((!isValidString(role) || role.length > 32 || (role !== 'operatore' && role !== 'automobilista')) || !role) {
             return next(ErrorFac.getMessage(
                 ErrorStatus.invalidFormat,
                 'Invalid role. Role must be a string with maximum length of 32 characters'
             ));
         }
-        if((!isValidString(format)|| (format !== 'json' && format !== 'pdf')) && !format){
+        if ((!isValidString(format) || (format !== 'json' && format !== 'pdf')) || !format) {
             return next(ErrorFac.getMessage(
                 ErrorStatus.invalidFormat,
                 'Invalid format. Format must be a string and must be json or pdf'
             ));
         }
         next();
-  }
-
-  validateParkStatsRequest(req: Request, res: Response, next: NextFunction) {
-    const { startDate, endDate } = req.query;
-    const dateTimeRegex = /^\d{4}-\d{2}-\d{2}%\d{2}:\d{2}:\d{2}$/;
-
-    if (!isValidString(startDate) && !startDate && !dateTimeRegex.test(startDate as string)) {
-        return next(
-            ErrorFac.getMessage(
-                ErrorStatus.invalidFormat,
-                'Invalid startDate. StartDate is expected a string with format AAAA-MM-GG%HH:MM:SS'
-            ));
     }
 
-    if (!isValidString(endDate) && !endDate && !dateTimeRegex.test(endDate as string)) {
-        return next(
-            ErrorFac.getMessage(
+    validateParkStatsRequest(req: Request, res: Response, next: NextFunction) {
+        const { startDate, endDate, format } = req.query;
+        const dateTimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+
+        if (!isValidString(startDate) || !dateTimeRegex.test(startDate as string) || !startDate) {
+            return next(
+                ErrorFac.getMessage(
+                    ErrorStatus.invalidFormat,
+                    'Invalid startDate. StartDate is expected a string with format AAAA-MM-GG%HH:MM:SS'
+                ));
+        }
+
+        if (!isValidString(endDate) || !dateTimeRegex.test(endDate as string) || !endDate) {
+            return next(
+                ErrorFac.getMessage(
+                    ErrorStatus.invalidFormat,
+                    'Invalid endDate. EndDate is expected a string with format AAAA-MM-GG%HH:MM:SS'
+                ));
+        }
+
+        if ((!isValidString(format) || (format !== 'json' && format !== 'pdf')) || !format) {
+            return next(ErrorFac.getMessage(
                 ErrorStatus.invalidFormat,
-                'Invalid endDate. EndDate is expected a string with format AAAA-MM-GG%HH:MM:SS'
+                'Invalid format. Format must be a string and must be json or pdf'
             ));
+        }
+        next();
     }
-    next();
-  }
 }
 
 export function isValidString(value: any): boolean {
