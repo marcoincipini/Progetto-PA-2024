@@ -63,6 +63,7 @@ router.get('/api/transits', async (req: any, res: any) => {
 */
 app.post('/api/try/:passage_id', async (req: Request, res: Response) => CRUDController.createBill(req, res));
 
+app.get('/api/try/', async (req: Request, res: Response) => res.json( await Transit.getEnterTransit('STU901V')));
 //app.get('/api/try/', async (req: Request, res: Response) => res.json( await Transit.getEnterTransit('AB123CD')));
 
 /*

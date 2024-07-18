@@ -87,55 +87,73 @@ class CRUDController {
             data: number,
             hour: number
         }
-        const passage_id = req.params.passage_id as unknown as number;
-        const plate = req.query.plate as string;
+        const passage_id = req.body.passage_id as unknown as number;
+        const plate = req.body.plate as string;
         
-
+        console.log("ecchime");
         const vehicle: Vehicle = await Vehicle.findByPk(plate);
-        let parkingPassage: Passage = await Passage.findByPk(passage_id); // ritoena il varco con id corrispondente con parcheggio
-        let transit_in: Transit = await Transit.getEnterTransit(plate); //ritorna il transito di ingresso max tempo
+        console.log("recuperato il veicolo: ", vehicle);
+        let parkingPassage: Passage = await Passage.findByPk(passage_id);
+        console.log("recuperato il varco: ", parkingPassage); // ritoena il varco con id corrispondente con parcheggio
+        let transit_in: Transit[] = await Transit.getEnterTransit(plate);
+        console.log("recuperato il transito in ingresso: ", transit_in[0]); //ritorna il transito di ingresso max tempo
 
         const parkings = await Parking.findByPk(parkingPassage.parking_id);
+        console.log("recuperato il PARCHEGGIO: ", parkings);
         const dayStart: Date = new Date(parkings.day_starting_hour);
         const dayFinish: Date = new Date(parkings.day_finishing_hour);
 
         let fees: Fee[] = await Fee.getFee(vehicle.vehicle_type,parkingPassage.parking_id);
+        console.log("non sono ancora morto e ho recuperato le fee: ", fees);
 
         let amount: number=0;
         
-        let start_time: Date = new Date(req.body.passing_by_date + ' ' + req.body.passing_by_hour);
-        let end_time: Date = new Date(transit_in.passing_by_date + ' ' + transit_in.passing_by_hour);
+        let end_time: Date = new Date(req.body.passing_by_date + ' ' + req.body.passing_by_hour);
+        let data: Date = transit_in[0].passing_by_date;
+        let start_time: Date = new Date(data + ' ' + transit_in[0].passing_by_hour);
+        //const [hours, minutes, seconds] = transit_in[0].passing_by_hour.split(":").map(Number);
+        
+        console.log(typeof(end_time),end_time);
+        //end_time.setHours(hours,minutes,seconds);
+        //end_time.setMinutes(minutes);
+        //end_time.setSeconds(seconds);
+        
+        console.log(start_time);
 
         let time: timeline[]=[]; 
-
         start_time.setHours(start_time.getHours() + 1);
         while (start_time < end_time) {
             time.push({data : start_time.getDay(), hour: start_time.getHours()});
             start_time.setHours(start_time.getHours() + 1);
         }
-
+        console.log("spazio-tempo creato: ", time);
         for (const hour of time) {
+            console.log("so sordi: ", amount);
             if(hour.hour >= dayFinish.getHours() && hour.hour <= dayStart.getHours()){
                 if(hour.data == 6){
-                    amount += this.searchfee(fees, false, true );
+                    amount += parseFloat(this.searchfee(fees, false, true ) as unknown as string );
                 }
-                    amount += this.searchfee(fees, false, false );
+                    amount += parseFloat(this.searchfee(fees, false, false )as unknown as string);
             }else{
                 if(hour.data == 6){
-                    amount += this.searchfee(fees, true, true );
+                    amount += parseFloat(this.searchfee(fees, true, true )as unknown as string);
                 }
-                    amount += this.searchfee(fees, true, false );
+                    amount += parseFloat(this.searchfee(fees, true, false )as unknown as string);
             }
         }
         let transitOut: Transit = await Transit.create(req.body);
 
-        let billOut = Bill.create({
+        console.log("recuperato il transito uscita: ", transitOut);
+
+        let billOut = await Bill.create({
             parking_id: parkingPassage.parking_id, 
             amount: amount,
-            entrance_transit: transit_in.id, 
+            entrance_transit: transit_in[0].id, 
             exit_transit: transitOut.id});
 
-        return res.json({billOut});
+        console.log(billOut);
+
+        return res.status(200).json(billOut);
 
        
     }
