@@ -48,8 +48,8 @@ routerApp.delete('/api/fees/:id', authMiddleware.authenticateJWT, authMiddleware
 routerApp.post('/api/transits', authMiddleware.authenticateJWT, authMiddleware.isPassageOrOperator, validateData.validateTransitDataCreation, globalCheck.checkParkingCapacity, (req: any, res: any) => {
     if (req.body.direction === 'E') {
         CRUDController.createRecord(Transit, req, res);
-    } else {/*
-        CRUDController.createExitTransit(req, res);*/
+    } else {
+        CRUDController.createBill(req, res);
     }
 });
 routerApp.get('/api/transits/:id', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateRequestId, globalCheck.checkRecordExists(Transit), (req: any, res: any) => CRUDController.getRecord(Transit, req, res));
