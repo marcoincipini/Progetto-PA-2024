@@ -553,7 +553,7 @@ class validateData {
                 ));
         }
 
-        if ((!isValidString(format) || (format !== 'json' && format !== 'pdf')) || !format) {
+        if (format && (!isValidString(format) || (format !== 'json' && format !== 'pdf'))) {
             return next(ErrorFac.getMessage(
                 ErrorStatus.invalidFormat,
                 'Invalid format. Format must be a string and must be json or pdf'

@@ -58,9 +58,11 @@ routerApp.delete('/api/transits/:id', authMiddleware.authenticateJWT, authMiddle
 
 routerApp.get('/api/transitReport', authMiddleware.authenticateJWT, validateData.validateTransitStatusControllerRequest, (req: any, res: any) => TransitStatusController.getTransits(req, res));
 
+routerApp.get('/api/generalParkStats/parkAverageVacancies',authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateParkStatsRequest, (req: any, res: any) => GeneralParkingController.averageVacanciesCalculator(req, res));
+routerApp.get('/api/generalParkStats/parkRevenues',authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateParkStatsRequest, (req: any, res: any) => GeneralParkingController.getRevenues(req, res));
+
 routerApp.get('/api/singleParkStats/nTransits/:id',authMiddleware.authenticateJWT, authMiddleware.isOperator,validateData.validateRequestId, globalCheck.checkRecordExists(Parking), validateData.validateParkStatsRequest, (req: any, res: any) => SingleParkingController.countTransits(req, res));
 routerApp.get('/api/singleParkStats/parkRevenues/:id',authMiddleware.authenticateJWT, authMiddleware.isOperator,validateData.validateRequestId, globalCheck.checkRecordExists(Parking), validateData.validateParkStatsRequest, (req: any, res: any) => SingleParkingController.getParkRevenues(req, res));
 
-//routerApp.get('/api/generalParkingStats')
 
 export default routerApp;
