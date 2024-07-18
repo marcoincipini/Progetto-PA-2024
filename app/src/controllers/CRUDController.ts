@@ -3,7 +3,7 @@ import { Model, ModelStatic, WhereOptions } from 'sequelize';
 import Transit from '../models/Transit';
 import { errorFactory } from '../factory/ErrorMessage';
 import { successFactory } from '../factory/SuccessMessage';
-import { ErrorStatus, SuccessStatus } from '../factory/Status'
+import { ErrorStatus, Message, SuccessStatus } from '../factory/Status'
 import Vehicle from '../models/Vehicle';
 import Passage from '../models/Passage';
 import Fee from '../models/Fee';
@@ -27,7 +27,7 @@ class CRUDController {
             const successMessage = SuccessFac.getMessage(SuccessStatus.creationSuccess, `Creating ${model.name} succeded`);
             result = res.json({ message: successMessage, data: { record }});
         } catch (err) {
-            result = ErrorFac.getMessage(ErrorStatus.creationInternalServerError, `Error creating ${model.name}`);
+            result = res.json(ErrorFac.getMessage(ErrorStatus.creationInternalServerError, `Error creating ${model.name}`));
         }
         return result;
     }
@@ -41,7 +41,7 @@ class CRUDController {
             const successMessage = SuccessFac.getMessage(SuccessStatus.readSuccess, `Reading ${model.name} succeded`);
             result = res.json({ message: successMessage, data: { record }});
         } catch (err) {
-            result = ErrorFac.getMessage(ErrorStatus.readInternalServerError, `Error retrieving ${model.name}`);
+            result = res.json(ErrorFac.getMessage(ErrorStatus.readInternalServerError, `Error retrieving ${model.name}`));
         }
         return result;
     }
@@ -58,7 +58,7 @@ class CRUDController {
             const successMessage = SuccessFac.getMessage(SuccessStatus.updateSuccess, `Updating ${model.name} succeded`);
             result = res.json({ message: successMessage, data: { record }});
         } catch (err) {
-            result = ErrorFac.getMessage(ErrorStatus.updateInternalServerError, `Error updating ${model.name}`);
+            result = res.json(ErrorFac.getMessage(ErrorStatus.updateInternalServerError, `Error updating ${model.name}`));
         }
 
         return result;
@@ -75,14 +75,14 @@ class CRUDController {
             const successMessage = SuccessFac.getMessage(SuccessStatus.deleteSuccess, `Deleting ${model.name} succeded`);
             result = res.json({ message: successMessage});
         } catch (err) {
-            result = ErrorFac.getMessage(ErrorStatus.deleteInternalServerError, `Error deleting ${model.name}`);
+            result = res.json(ErrorFac.getMessage(ErrorStatus.deleteInternalServerError, `Error deleting ${model.name}`));
         }
 
         return result;
     }
 
-    async createBill(req:Request,res:Response): Promise<Response> {
-
+    async createBill(req:Request,res:Response): Promise<Response | Message> {
+        var result: any;
         type timeline = {
             data: number,
             hour: number
@@ -95,8 +95,13 @@ class CRUDController {
         console.log("recuperato il veicolo: ", vehicle);
         let parkingPassage: Passage = await Passage.findByPk(passage_id);
         console.log("recuperato il varco: ", parkingPassage); // ritoena il varco con id corrispondente con parcheggio
-        let transit_in: Transit[] = await Transit.getEnterTransit(plate);
-        console.log("recuperato il transito in ingresso: ", transit_in[0]); //ritorna il transito di ingresso max tempo
+        let transitIn: Transit[] = await Transit.getEnterTransit(plate);
+        console.log("recuperato il transito in ingresso: ", transitIn[0]); //ritorna il transito di ingresso max tempo
+
+        if (transitIn[0].direction == 'U'){
+           result = res.json(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, `Entrance transit not present`));
+           return result;
+        }
 
         const parkings = await Parking.findByPk(parkingPassage.parking_id);
         console.log("recuperato il PARCHEGGIO: ", parkings);
@@ -109,9 +114,9 @@ class CRUDController {
         let amount: number=0;
         
         let end_time: Date = new Date(req.body.passing_by_date + ' ' + req.body.passing_by_hour);
-        let data: Date = transit_in[0].passing_by_date;
-        let start_time: Date = new Date(data + ' ' + transit_in[0].passing_by_hour);
-        //const [hours, minutes, seconds] = transit_in[0].passing_by_hour.split(":").map(Number);
+        let data: Date = transitIn[0].passing_by_date;
+        let start_time: Date = new Date(data + ' ' + transitIn[0].passing_by_hour);
+        //const [hours, minutes, seconds] = transitIn[0].passing_by_hour.split(":").map(Number);
         
         console.log(typeof(end_time),end_time);
         //end_time.setHours(hours,minutes,seconds);
@@ -144,16 +149,19 @@ class CRUDController {
         let transitOut: Transit = await Transit.create(req.body);
 
         console.log("recuperato il transito uscita: ", transitOut);
+       
 
         let billOut = await Bill.create({
             parking_id: parkingPassage.parking_id, 
             amount: amount,
-            entrance_transit: transit_in[0].id, 
+            entrance_transit: transitIn[0].id, 
             exit_transit: transitOut.id});
 
         console.log(billOut);
 
-        return res.status(200).json(billOut);
+        const successMessage = SuccessFac.getMessage(SuccessStatus.readSuccess, `Reading succeded`);
+        result = res.json({ message: successMessage, data: { billOut }});
+        
 
        
     }

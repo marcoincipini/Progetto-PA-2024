@@ -50,7 +50,7 @@ class GeneralParkingController {
             }
             return this.selectFormatAverageRevenue(parkings, req, res);
         } catch (err) {
-            ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating revenues for parking');
+            return res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating revenues for parking'));
         }
 
     }
@@ -88,7 +88,7 @@ class GeneralParkingController {
 
             return this.selectFormatAverageVacancies(average_res, req, res);
         } catch (err) {
-            ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating average vacancies for parking');
+            return res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating average vacancies for parking'));
         }
     }
 

@@ -32,7 +32,7 @@ class loginController {
             const successMessage = SuccessFac.getMessage(SuccessStatus.userLoginSuccess, `Logging as User ${user.name} ${user.surname} succeded`);
             result = res.json({ message: successMessage, data: { token } });
         } catch (err) {
-            result = ErrorFac.getMessage(ErrorStatus.userLoginError, `Logging as User failed`);
+            result = res.json(ErrorFac.getMessage(ErrorStatus.userLoginError, `Logging as User failed`));
         }
         return result;
     };
@@ -57,7 +57,7 @@ class loginController {
             const successMessage = SuccessFac.getMessage(SuccessStatus.passageLoginSuccess, `Logging as Passage ${passage.name} succeded`);
             result = res.json({ message: successMessage, data: { token } });
         } catch (err) {
-            result = ErrorFac.getMessage(ErrorStatus.userLoginError, `Logging as Passage failed`);
+            result = res.json(ErrorFac.getMessage(ErrorStatus.userLoginError, `Logging as Passage failed`));
         }
         return result;
 

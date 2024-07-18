@@ -35,7 +35,7 @@ class TransitStatusController {
                 }
             }
         } catch (err) {
-            return ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error retrieving transits');
+            return res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error retrieving transits'));
         }
     }
 
@@ -119,7 +119,7 @@ class TransitStatusController {
             let userPlates: string[] = userPlat.map((item) => item.plate);
             return plates.every((elem: string) => userPlates.includes(elem));
         } catch (err) {
-            return ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error in checking existing plates');
+            return res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error in checking existing plates'));
         }
     }
 }

@@ -327,10 +327,11 @@ class validateData {
             if (plate.length !== 7) {
                 return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, 'Invalid plate format. Expected length: 7 characters'));
             }
+            next();
         } catch (err) {
             next(ErrorFac.getMessage(ErrorStatus.defaultError));
         }
-        next();
+     
     }
 
     validateParkingDataUpdate(req: Request, res: Response, next: NextFunction) {
@@ -422,10 +423,12 @@ class validateData {
                 const specificMessage = 'Invalid exit value. Exit must be a boolean';
                 return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
             }
+
+            next();
         } catch (err) {
             next(ErrorFac.getMessage(ErrorStatus.defaultError));
         }
-        next();
+        
     }
 
     async validateFeeDataUpdate(req: Request, res: Response, next: NextFunction) {
@@ -472,10 +475,11 @@ class validateData {
             if (typeof festive !== 'boolean' && festive) {
                 return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, 'Invalid festive value. Festive value must be a boolean'));
             }
+            next();
         } catch (err) {
             next(ErrorFac.getMessage(ErrorStatus.defaultError));
         }
-        next();
+     
     }
 
     validateTransitStatusControllerRequest(req: Request, res: Response, next: NextFunction) {

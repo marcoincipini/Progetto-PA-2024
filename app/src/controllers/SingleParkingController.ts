@@ -53,7 +53,7 @@ class SingleParkingController {
             const successMessage = SuccessFac.getMessage(SuccessStatus.defaultSuccess, 'Counting Transits succeded');
             result = res.json({ message: successMessage, data: { transitC }});
         } catch (err) {
-            result = ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error counting Transits');
+            result = res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error counting Transits'));
         }
         return result;
     }
@@ -86,7 +86,7 @@ class SingleParkingController {
             const successMessage = SuccessFac.getMessage(SuccessStatus.defaultSuccess, 'Calculating revenues for parkings succeded');
             result = res.json({ message: successMessage, data: { amount }});
         } catch (err) {
-            result = ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating revenues for parkings');
+            result = res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating revenues for parkings'));
         }
         return result;
     }

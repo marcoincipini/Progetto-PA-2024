@@ -155,7 +155,6 @@ class Transit extends Model<TransitAttributes, TransitCreationAttributes> implem
   static async getEnterTransit(plates: string): Promise<Transit[]> {
     return await Transit.findAll({
       where: {
-        direction: 'E',
         plate: plates
       },
       order: [[sequelize.fn('CONCAT', sequelize.col('passing_by_date'), ' ', sequelize.col('passing_by_hour')), 'DESC']], limit: 1, 
