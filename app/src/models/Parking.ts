@@ -1,5 +1,6 @@
 // Import necessary modules from 'sequelize'
 import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+
 // Import the database connection from 'DbConnections'
 import { DbConnections } from './DbConnections';
 
@@ -10,7 +11,7 @@ const sequelize: Sequelize = DbConnections.getConnection();
 interface ParkingAttributes {
   id: number;
   name: string;
-  parking_spots: number; // Use camelCase for property names
+  parking_spots: number; 
   occupied_spots: number;
   day_starting_hour: string; // Use appropriate data type for time
   day_finishing_hour: string; // Use appropriate data type for time

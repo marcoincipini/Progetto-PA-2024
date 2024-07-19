@@ -1,8 +1,7 @@
-// ErrorMessages.ts
-
 import { HttpStatus, Response, Message, MessageFactory, ErrorStatus } from './Status';
 
 
+// Error message class for user login error
 class userLoginError implements Message {
     getResponse(): Response {
         return {
@@ -13,6 +12,7 @@ class userLoginError implements Message {
     }
 }
 
+// Error message class for invalid email format
 class emailNotValid implements Message {
     getResponse(): Response {
         return {
@@ -23,6 +23,7 @@ class emailNotValid implements Message {
     }
 }
 
+// Error message class for login bad request
 class loginBadRequest implements Message {
     getResponse(): Response {
         return {
@@ -33,6 +34,7 @@ class loginBadRequest implements Message {
     }
 }
 
+// Error message class for invalid JWT
 class jwtNotValid implements Message {
     getResponse(): Response {
         return {
@@ -43,6 +45,7 @@ class jwtNotValid implements Message {
     }
 }
 
+// Error message class for unauthorized user
 class userNotAuthorized implements Message {
     getResponse(): Response {
         return {
@@ -53,6 +56,7 @@ class userNotAuthorized implements Message {
     }
 }
 
+// Error message class for passage login error
 class passageLoginError implements Message {
     getResponse(): Response {
         return {
@@ -63,6 +67,7 @@ class passageLoginError implements Message {
     }
 }
 
+// Error message class for creation internal server error
 class creationInternalServerError implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -77,6 +82,7 @@ class creationInternalServerError implements Message {
     }
 }
 
+// Error message class for reading internal server error
 class readInternalServerError implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -91,6 +97,7 @@ class readInternalServerError implements Message {
     }
 }
 
+// Error message class for updating internal server error
 class updateInternalServerError implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -105,6 +112,7 @@ class updateInternalServerError implements Message {
     }
 }
 
+// Error message class for deleting internal server error
 class deleteInternalServerError implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -119,6 +127,7 @@ class deleteInternalServerError implements Message {
     }
 }
 
+// Error message class for resource not found error
 class resourceNotFoundError implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -133,6 +142,7 @@ class resourceNotFoundError implements Message {
     }
 }
 
+// Default error message class
 class defaultError implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -147,6 +157,7 @@ class defaultError implements Message {
     }
 }
 
+// Error message class for invalid date format
 class invalidDateFormat implements Message {
     getResponse(): Response {
         return {
@@ -157,6 +168,7 @@ class invalidDateFormat implements Message {
     }
 }
 
+// Error message class for invalid hour format
 class invalidHourFormat implements Message {
     getResponse(): Response {
         return {
@@ -167,6 +179,7 @@ class invalidHourFormat implements Message {
     }
 }
 
+// Error message class for invalid format
 class invalidFormat implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -181,6 +194,7 @@ class invalidFormat implements Message {
     }
 }
 
+// Error message class for route not found
 class routeNotFound implements Message {
     getResponse(): Response {
         return {
@@ -191,6 +205,7 @@ class routeNotFound implements Message {
     }
 }
 
+// Error message class for function not working
 class functionNotWorking implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -205,6 +220,7 @@ class functionNotWorking implements Message {
     }
 }
 
+// Error message class for invalid format or resource not found
 class invalidFormatOrResourceNotFound implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -219,6 +235,7 @@ class invalidFormatOrResourceNotFound implements Message {
     }
 }
 
+// Error message class for parking full
 class parkingFull implements Message {
     getResponse(): Response {
         return {
@@ -229,6 +246,7 @@ class parkingFull implements Message {
     }
 }
 
+// Error message class for resource already present
 class resourceAlreadyPresent implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -243,11 +261,13 @@ class resourceAlreadyPresent implements Message {
     }
 }
 
+// Error factory class to generate error messages
 export class errorFactory extends MessageFactory {
 
     getMessage(type: ErrorStatus, specificMessage?: string): Message {
         let errorMessage: Message | null = null;
 
+        // Switch case to return the appropriate error message based on the error type
         switch (type) {
             case ErrorStatus.userLoginError:
                 errorMessage = new userLoginError;

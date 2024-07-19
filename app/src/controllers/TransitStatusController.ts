@@ -3,7 +3,11 @@ import { Request, Response } from 'express';
 import Transit from '../models/Transit';
 import Vehicle from '../models/Vehicle';
 import PDFDocument from 'pdfkit';
+
+// Import the models
 import Bill from '../models/Bill';
+
+// Import the factories
 import { errorFactory } from '../factory/ErrorMessage';
 import { successFactory } from '../factory/SuccessMessage';
 import { ErrorStatus, SuccessStatus } from '../factory/Status'
@@ -23,7 +27,6 @@ class TransitStatusController {
 
             // Filter by plates only if the user is an operator
             if (role == 'operatore') {
-                console.log("sono un operatore");
                 let exitTransitList = await this.collectTransitsAndBills(plates, startDate, endDate);
                 return this.selectFormat(exitTransitList, req, res);
             } else {
@@ -35,7 +38,8 @@ class TransitStatusController {
                 }
             }
         } catch (err) {
-            return res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error retrieving transits'));
+            const errMessage = ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error retrieving transits').getResponse();
+            return res.json({ Error: errMessage });
         }
     }
 
@@ -85,7 +89,7 @@ class TransitStatusController {
         if (req.query.format === 'json' || !req.query.format) {
             var result: any;
             const successMessage = SuccessFac.getMessage(SuccessStatus.defaultSuccess, `Recovering Transit Report succeded`);
-            result = res.json({ message: successMessage, data: { transit } });
+            result = res.json({ Success: successMessage, data: { transit } });
             return result;
         } else if (req.query.format === 'pdf') {
             const pdf = new PDFDocument();
@@ -119,7 +123,8 @@ class TransitStatusController {
             let userPlates: string[] = userPlat.map((item) => item.plate);
             return plates.every((elem: string) => userPlates.includes(elem));
         } catch (err) {
-            return res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error in checking existing plates'));
+            const errMessage = ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error in checking existing plates').getResponse();
+            return res.json({ Error: errMessage });
         }
     }
 }

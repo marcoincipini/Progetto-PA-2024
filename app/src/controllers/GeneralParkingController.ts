@@ -1,8 +1,12 @@
 // Importing necessary modules
 import { Request, Response } from 'express';
 import PDFDocument from 'pdfkit';
+
+// Import the models
 import Bill from '../models/Bill';
 import Parking from '../models/Parking';
+
+// Import the factories
 import { errorFactory } from '../factory/ErrorMessage';
 import { successFactory } from '../factory/SuccessMessage';
 import { ErrorStatus, SuccessStatus } from '../factory/Status'
@@ -56,7 +60,9 @@ class GeneralParkingController {
             return this.selectFormatAverageRevenue(parkings, req, res);
         } catch (err) {
             // Return error message if there's an error
-            return res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating revenues for parking'));
+            const errMessage = ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating revenues for parking').getResponse();
+            return res.json({ Error: errMessage });
+
         }
 
     }
@@ -101,7 +107,8 @@ class GeneralParkingController {
             return this.selectFormatAverageVacancies(averageRes, req, res);
         } catch (err) {
             // Return error message if there's an error
-            return res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating average vacancies for parking'));
+            const errMessage = ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating average vacancies for parking').getResponse();
+            return res.json({ Error: errMessage });
         }
     }
 
@@ -148,7 +155,7 @@ class GeneralParkingController {
         if (req.query.format === 'json' || !req.query.format) {
             // If the format is json or not specified, return json
             const successMessage = SuccessFac.getMessage(SuccessStatus.defaultSuccess, `Calculating average vacancies for parking succeded`);
-            res.json({ message: successMessage, data: { average } });
+            res.json({ Success: successMessage, data: { average } });
         } else if (req.query.format === 'pdf') {
             // If the format is pdf, generate a pdf
             const pdf = new PDFDocument();
@@ -178,7 +185,7 @@ class GeneralParkingController {
         if (req.query.format === 'json' || !req.query.format) {
             // If the format is json or not specified, return json
             const successMessage = SuccessFac.getMessage(SuccessStatus.defaultSuccess, `Calculating average revenue for parking succeded`);
-            res.json({ message: successMessage, data: { parkings } });
+            res.json({ Success: successMessage, data: { parkings } });
         } else if (req.query.format === 'pdf') {
             // If the format is pdf, generate a pdf
             const pdf = new PDFDocument();

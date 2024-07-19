@@ -2,8 +2,12 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
+
+// Import the models
 import User from '../models/User'
 import Passage from '../models/Passage';
+
+// Import the factories
 import { errorFactory } from '../factory/ErrorMessage';
 import { successFactory } from '../factory/SuccessMessage';
 import { ErrorStatus, SuccessStatus } from '../factory/Status'
@@ -44,10 +48,11 @@ class loginController {
             const successMessage = SuccessFac.getMessage(SuccessStatus.userLoginSuccess, `Logging as User ${user.name} ${user.surname} succeded`);
 
             // Send response with token
-            result = res.json({ message: successMessage, data: { token } });
+            result = res.json({ Success: successMessage, data: { token } });
         } catch (err) {
             // Handle login error
-            result = res.json(ErrorFac.getMessage(ErrorStatus.userLoginError, `Logging as User failed`));
+            const errMessage = ErrorFac.getMessage(ErrorStatus.userLoginError, `Logging as User failed`).getResponse();
+            result = res.json({ Error: errMessage });
         }
 
         return result;
@@ -78,10 +83,11 @@ class loginController {
             const successMessage = SuccessFac.getMessage(SuccessStatus.passageLoginSuccess, `Logging as Passage ${passage.name} succeded`);
 
             // Send response with token
-            result = res.json({ message: successMessage, data: { token } });
+            result = res.json({ Success: successMessage, data: { token } });
         } catch (err) {
             // Handle login error
-            result = res.json(ErrorFac.getMessage(ErrorStatus.userLoginError, `Logging as Passage failed`));
+            const errMessage = ErrorFac.getMessage(ErrorStatus.userLoginError, `Logging as Passage failed`).getResponse();
+            result = res.json({ Error: errMessage });
         }
 
         return result;

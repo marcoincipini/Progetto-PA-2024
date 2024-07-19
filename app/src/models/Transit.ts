@@ -2,8 +2,9 @@
 import { DataTypes, Model, Optional, Sequelize, Op } from 'sequelize';
 // Import the database connection from 'DbConnections'
 import { DbConnections } from './DbConnections';
-// Import the 'Passage', 'Vehicle', and 'Parking' models
-import Passage from './Passage'; // Assuming Passage and Vehicle models are defined in separate files
+
+// Import the models
+import Passage from './Passage'; 
 import Vehicle from './Vehicle';
 import Parking from './Parking';
 
@@ -15,8 +16,8 @@ interface TransitAttributes {
   id: number;
   passage_id: number;
   plate: string;
-  passing_by_date: Date; // Use appropriate data types
-  passing_by_hour: string; // Use appropriate data types
+  passing_by_date: Date; 
+  passing_by_hour: string; 
   direction: string;
   vehicle_type: string;
   deletedAt?: Date; // Optional deletedAt attribute for soft deletion

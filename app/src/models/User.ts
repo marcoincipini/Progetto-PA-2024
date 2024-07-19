@@ -1,5 +1,6 @@
 // Import necessary modules from 'sequelize'
 import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+
 // Import the database connection from 'DbConnections'
 import { DbConnections } from './DbConnections';
 

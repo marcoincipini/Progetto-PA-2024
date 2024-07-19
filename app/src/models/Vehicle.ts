@@ -1,9 +1,11 @@
 // Import necessary modules from 'sequelize'
 import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+
 // Import the database connection from 'DbConnections'
 import { DbConnections } from './DbConnections';
-// Import the 'User' model
-import User from './User'; // Assuming User model is defined in a separate file
+
+// Import the model
+import User from './User'; 
 
 // Get the database connection
 const sequelize: Sequelize = DbConnections.getConnection();
@@ -11,7 +13,7 @@ const sequelize: Sequelize = DbConnections.getConnection();
 // Define the attributes for the 'Vehicle' model
 interface VehicleAttributes {
   plate: string;
-  vehicle_type: string; // Use camelCase for property names
+  vehicle_type: string;
   user_id: number;
   deletedAt?: Date; // Optional deletedAt attribute for soft deletion
 }

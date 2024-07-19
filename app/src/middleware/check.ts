@@ -1,8 +1,10 @@
+
 import { Request, Response, NextFunction } from 'express';
 import { Model, ModelStatic } from 'sequelize';
+
 import Parking from '../models/Parking';
 import Passage from '../models/Passage';
-import User from '../models/User';
+
 import { errorFactory } from '../factory/ErrorMessage';
 import { ErrorStatus } from '../factory/Status'
 

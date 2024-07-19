@@ -1,9 +1,11 @@
 // Import necessary modules from 'sequelize'
 import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+
 // Import the database connection from 'DbConnections'
 import { DbConnections } from './DbConnections';
-// Import the 'Parking' model
-import Parking from './Parking'; // Assuming Parking model is defined in a separate file
+
+// Import the model
+import Parking from './Parking';
 
 // Get the database connection
 const sequelize: Sequelize = DbConnections.getConnection();
@@ -48,6 +50,7 @@ class Fee extends Model<FeeAttributes, FeeCreationAttributes> implements FeeAttr
       return null;
     }
   }
+
   // Method to get fee based on vehicleType and parkingId
   static async getFee(vehicleType: string, parkingId: number): Promise<Fee[]> {
     try {

@@ -1,9 +1,11 @@
 // Import necessary modules from 'sequelize'
 import { DataTypes, Model, Op, Optional, Sequelize } from 'sequelize';
+
 // Import the database connection from 'DbConnections'
 import { DbConnections } from './DbConnections';
-// Import the 'Parking' and 'Transit' models
-import Parking from './Parking'; // Assuming Parking and Transit models are defined in separate files
+
+// Import the models
+import Parking from './Parking'; 
 import Transit from './Transit';
 
 // Get the database connection

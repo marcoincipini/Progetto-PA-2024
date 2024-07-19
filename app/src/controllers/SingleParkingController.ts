@@ -1,8 +1,12 @@
 // Import necessary modules and types
 import { Request, Response } from 'express';
+
+// Import the models
 import Transit from '../models/Transit';
 import Bill from '../models/Bill';
 import Parking from '../models/Parking';
+
+// Import the factories
 import { errorFactory } from '../factory/ErrorMessage';
 import { successFactory } from '../factory/SuccessMessage';
 import { ErrorStatus, SuccessStatus } from '../factory/Status'
@@ -59,10 +63,11 @@ class SingleParkingController {
 
             // Create success message and send response
             const successMessage = SuccessFac.getMessage(SuccessStatus.defaultSuccess, 'Counting Transits succeded');
-            result = res.json({ message: successMessage, data: { transitC } });
+            result = res.json({ Success: successMessage, data: { transitC } });
         } catch (err) {
             // Handle error
-            result = res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error counting Transits'));
+            const errMessage = ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error counting Transits').getResponse();
+            result = res.json({ Error: errMessage });
         }
         return result;
     }
@@ -98,10 +103,11 @@ class SingleParkingController {
 
             // Create success message and send response
             const successMessage = SuccessFac.getMessage(SuccessStatus.defaultSuccess, 'Calculating revenues for parkings succeded');
-            result = res.json({ message: successMessage, data: { amount } });
+            result = res.json({ Success: successMessage, data: { amount } });
         } catch (err) {
             // Handle error
-            result = res.json(ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating revenues for parkings'));
+            const errMessage = ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Error calculating revenues for parkings').getResponse();
+            result = res.json({ Error: errMessage });
         }
         return result;
     }

@@ -1,85 +1,63 @@
-// HttpStatus.ts
-
+// Enumeration of HTTP status codes
 export enum HttpStatus {
-    OK = 200,
-    CREATED = 201,
-    NO_CONTENT = 204,   
-    BAD_REQUEST = 400,
-    UNAUTHORIZED = 401,
-    FORBIDDEN = 403,
-    NOT_FOUND = 404,
-    INTERNAL_SERVER_ERROR = 500
+    OK = 200, // Successful request
+    CREATED = 201, // Resource created successfully
+    NO_CONTENT = 204, // No content to return
+    BAD_REQUEST = 400, // Client error: Bad request
+    UNAUTHORIZED = 401, // Client error: Unauthorized
+    FORBIDDEN = 403, // Client error: Forbidden
+    NOT_FOUND = 404, // Client error: Not found
+    INTERNAL_SERVER_ERROR = 500 // Server error: Internal server error
 }
-
+// Enumeration of success statuses
 export enum SuccessStatus {
-    //User login success message
-    userLoginSuccess,
-
-    //Passage login success message
-    passageLoginSuccess,
-
-    //User CRUD success messages
-    creationSuccess,
-    readSuccess,
-    updateSuccess,
-    deleteSuccess,
-    
-    //Default success message
-    defaultSuccess
+    userLoginSuccess, // User login success message
+    passageLoginSuccess, // Passage login success message
+    creationSuccess, // Successful resource creation
+    readSuccess, // Successful resource read
+    updateSuccess, // Successful resource update
+    deleteSuccess, // Successful resource deletion
+    defaultSuccess // Default success message
 }
 
-
+// Enumeration of error statuses
 export enum ErrorStatus {
-    //User login error messages
-    userLoginError,
-    emailNotValid,
-
-    //Login bad request error message
-    loginBadRequest,
-
-    //JWT auth not valid message
-    jwtNotValid,
-
-    //Authorization error message
-    userNotAuthorized,
-
-    //Passage login error message
-    passageLoginError,
-
-    //General CRUD Internal Server Error messages
-    creationInternalServerError,
-    readInternalServerError,
-    updateInternalServerError,
-    deleteInternalServerError,
-
-    //General errors
-    resourceNotFoundError,
-    resourceAlreadyPresent,
-    invalidDateFormat,
-    invalidHourFormat,
-    invalidFormat,
-    invalidFormatOrResourceNotFound,
-    routeNotFound,
-    functionNotWorking,
-    parkingFull,
-
-    //Default error message
-    defaultError
-
+    userLoginError, // User login error message
+    emailNotValid, // Invalid email format error
+    loginBadRequest, // Login bad request error message
+    jwtNotValid, // JWT authentication failure
+    userNotAuthorized, // Authorization error message
+    passageLoginError, // Passage login error message
+    creationInternalServerError, // Error during resource creation
+    readInternalServerError, // Error during resource read
+    updateInternalServerError, // Error during resource update
+    deleteInternalServerError, // Error during resource deletion
+    resourceNotFoundError, // Resource not found error
+    resourceAlreadyPresent, // Resource already exists error
+    invalidDateFormat, // Invalid date format error
+    invalidHourFormat, // Invalid hour format error
+    invalidFormat, // Invalid format error
+    invalidFormatOrResourceNotFound, // Invalid format or resource not found error
+    routeNotFound, // Route not found error
+    functionNotWorking, // Function not working error
+    parkingFull, // Parking full error
+    defaultError // Default error message
 }
 
+// Interface for response objects
 export interface Response {
-    message: string;
-    status: number;
-    data?: string;
-    type: string;
+    message: string; // The message to return
+    status: number; // HTTP status code
+    data?: string; // Optional additional data
+    type: string; // The type of response (application/json)
 }
 
+// Interface for message objects
 export interface Message {
-    getResponse(): Response;
+    getResponse(): Response; // Method to get the response object
 }
 
+// Abstract class for message factories
 export abstract class MessageFactory {
-
-    abstract getMessage(type: number): Message;
+    abstract getMessage(type: number): Message; // Abstract method to get a message based on the type
 }

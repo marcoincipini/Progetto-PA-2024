@@ -1,8 +1,10 @@
 // Import necessary modules from 'sequelize'
 import { DataTypes, Model, Optional, Sequelize } from 'sequelize';
+
 // Import the database connection from 'DbConnections'
 import { DbConnections } from './DbConnections';
-// Import the 'Parking' model
+
+// Import the model
 import Parking from './Parking';
 
 // Get the database connection
@@ -11,7 +13,7 @@ const sequelize: Sequelize = DbConnections.getConnection();
 // Define the attributes for the 'Passage' model
 interface PassageAttributes {
   id: number;
-  parking_id: number; // Use camelCase for property names
+  parking_id: number;
   name: string;
   entrance: boolean;
   exit: boolean;

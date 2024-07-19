@@ -1,7 +1,6 @@
-// SuccessMessages.ts
-
 import { HttpStatus, Response, Message, SuccessStatus, MessageFactory } from './Status';
 
+// Success message class for user login success
 class userLoginSuccess implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -16,6 +15,7 @@ class userLoginSuccess implements Message {
     }
 }
 
+// Success message class for passage login success
 class passageLoginSuccess implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -30,6 +30,7 @@ class passageLoginSuccess implements Message {
     }
 }
 
+// Success message class for creation success
 class creationSuccess implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -44,6 +45,7 @@ class creationSuccess implements Message {
     }
 }
 
+// Success message class for read operation success
 class readSuccess implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -58,6 +60,7 @@ class readSuccess implements Message {
     }
 }
 
+// Success message class for update operation success
 class updateSuccess implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -72,6 +75,7 @@ class updateSuccess implements Message {
     }
 }
 
+// Success message class for delete operation success
 class deleteSuccess implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
@@ -86,25 +90,28 @@ class deleteSuccess implements Message {
     }
 }
 
+// Default success message class
 class defaultSuccess implements Message {
     private specificMessage: string;
     constructor(specificMessage: string) {
         this.specificMessage = specificMessage;
     }
     getResponse(): Response {
-      return {
-        status: HttpStatus.OK,
-        message: `Ok - Operation completed: ${this.specificMessage}`,
-        type: "application/json"
-      };
+        return {
+            status: HttpStatus.OK,
+            message: `Ok - Operation completed: ${this.specificMessage}`,
+            type: "application/json"
+        };
     }
-  }
+}
 
+// Factory class to generate success messages
 export class successFactory extends MessageFactory {
 
     getMessage(type: SuccessStatus, specificMessage?: string): Message {
         let successMessage: Message | null = null;
 
+        // Switch case to return the appropriate success message based on the success type
         switch (type) {
             case SuccessStatus.userLoginSuccess:
                 successMessage = new userLoginSuccess(specificMessage);
@@ -124,7 +131,7 @@ export class successFactory extends MessageFactory {
             case SuccessStatus.deleteSuccess:
                 successMessage = new deleteSuccess(specificMessage);
                 break;
-            default: 
+            default:
                 successMessage = new defaultSuccess(specificMessage);
         }
 
