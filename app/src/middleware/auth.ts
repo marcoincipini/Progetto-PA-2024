@@ -42,6 +42,7 @@ class authMiddleware {
                 next(ErrorFac.getMessage(ErrorStatus.userNotAuthorized));
             }
         } catch (err) {
+            // Handle errors
             next(ErrorFac.getMessage(ErrorStatus.defaultError, "Error in checking the logged User"));
         }
     };
@@ -74,6 +75,7 @@ class authMiddleware {
             // If none of the conditions are met, return not authorized
             next(ErrorFac.getMessage(ErrorStatus.userNotAuthorized));
         } catch (err) {
+            // Handle errors
             next(ErrorFac.getMessage(ErrorStatus.defaultError, "Error in checking the logged User/passage"));
         }
     }
@@ -103,6 +105,7 @@ class authMiddleware {
             req.body.user = user;
             next();
         } catch (err) {
+            // Handle errors
             next(ErrorFac.getMessage(ErrorStatus.userLoginError));
         }
     }
@@ -128,6 +131,7 @@ class authMiddleware {
             req.body.passage = passage;
             next();
         } catch (err) {
+            // Handle errors
             next(ErrorFac.getMessage(ErrorStatus.passageLoginError));
         }
     }
@@ -152,11 +156,13 @@ class authMiddleware {
                 // Add passage name to req for later use in controllers
                 req.body.passage = verified;
             } else {
+                // If none of the conditions are met, return not jwt not valid error
                 next(ErrorFac.getMessage(ErrorStatus.jwtNotValid));
             }
 
             next();
         } catch (err) {
+            // Handle errors
             next(ErrorFac.getMessage(ErrorStatus.jwtNotValid));
         }
     }

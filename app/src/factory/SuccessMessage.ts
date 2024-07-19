@@ -138,4 +138,3 @@ export class successFactory extends MessageFactory {
         return successMessage
     }
 }
-
