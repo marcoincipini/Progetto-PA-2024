@@ -1,21 +1,32 @@
+<p align="center">
+  <img src="./images/Logo.jpeg" height="270"/>
+</p>
+
+
+<div align="center">
+ 
+[![Postgres](https://img.shields.io/badge/Made%20with-postgres-%23316192.svg?style=plastic&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![NPM](https://img.shields.io/badge/Made%20with-NPM-%23CB3837.svg?style=plastic&logo=npm&logoColor=white)](https://www.npmjs.com/)
+[![NodeJS](https://img.shields.io/badge/Made%20with-node.js-6DA55F?style=plastic&logo=node.js&logoColor=white)](https://nodejs.org/en)
+[![Express.js](https://img.shields.io/badge/Made%20with-express.js-%23404d59.svg?style=plastic&logo=express&logoColor=%2361DAFB)](https://expressjs.com/it/)
+[![JWT](https://img.shields.io/badge/Made%20with-JWT-black?style=plastic&logo=JSON%20web%20tokens)](https://jwt.io/)
+[![Visual Studio Code](https://img.shields.io/badge/Made%20with-Visual%20Studio%20Code-0078d7.svg?style=plastic&logo=visual-studio-code&logoColor=white)](https://code.visualstudio.com/)
+[![TypeScript](https://img.shields.io/badge/Made%20with-typescript-%23007ACC.svg?style=plastic&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Sequelize](https://img.shields.io/badge/Made%20with-Sequelize-52B0E7?style=plastic&logo=Sequelize&logoColor=white)](https://sequelize.org/)
+[![Docker](https://img.shields.io/badge/Made%20with-docker-%230db7ed.svg?style=plastic&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Postman](https://img.shields.io/badge/Made%20with-Postman-FF6C37?style=plastic&logo=postman&logoColor=white)](https://www.postman.com/)
+ 
+</div>
+
 # Progetto-PA-2024: Backend per un sistema di gestione del calcolo del costo dei parcheggi
-<a><img src="images/logo-univpm.png" height='60' align="right"/></a>
+<p align="right">
+  <img src="./images/logo-univpm.png" height="80"/>
+</p>
 
 ## Specifica e obiettivi del progetto
 Si realizzi un sistema che consenta di gestire il calcolo del costo dei parcheggi a seguito del passaggio di autoveicoli con classi differenti tra un varco di ingresso e di uscita. Un parcheggio può avere diversi punti di ingresso e diversi punti di uscita. Dovranno essere modellati le tipologie di veicolo che hanno poi costi differenti. Dovranno essere inseribili i transiti impostando data e ora del passaggio e targa del veicolo lungo un varco specifico di un dato parcheggio; la richiesta di inserimento deve essere rifiutata se non ci sono più posti disponibili all’interno del parcheggio. Un veicolo in un giorno può parcheggiare in diversi parcheggi. Il sistema deve anche provvedere a calcolare il costo del parcheggio in funzione della permanenza effettiva all’interno dello stesso.
 
 La specifica completa è consultabile nel seguente [documento](Programmazione avanzata richieste.pdf)
-
-## Strumenti utilizzati per lo sviluppo
-
-- [Node.JS](https://nodejs.org)
-- [Express](https://expressjs.com)
-- [Sequelize](https://sequelize.org) 
-- [PostgreSQL](https://www.postgresql.org/)
-- [Docker](https://www.docker.com/)
-- [Docker-compose](https://docs.docker.com/compose/)
-- [Postman](https://www.postman.com)
-- [JWT](https://jwt.io)
 
 ## Installazione
 
@@ -23,7 +34,8 @@ La specifica completa è consultabile nel seguente [documento](Programmazione av
 
 Per installare l'applicazione è necessario avere installato l'ultima versione di Docker-compose, seguendo le istruzioni in base al tipo di architettura su cui gira la propria macchina. Inoltre è necessario avere installato Git, in modo tale da riuscire a clonare correttamente il codice.  
 
-Per il testing dell'applicazione viene utilizzato il client API Postman.
+Per il testing dell'applicazione viene utilizzato il client API Postman. La collection a cui si fa riferimento, dove viene testato il funzionamento del codice sia in caso di successo che in caso di fallimento, è accessibile tramite questo [file](Progetto_PA_Postman_collection.json), da scaricare, oppure tramite questo [link](https://app.getpostman.com/join-team?invite_code=4858424712b7a1c26f59cbd9d6099db9&target_code=0562f44015402f8eafa438a4bb2504d8).
+
 ### Avvio del progetto
 
 1. Clonare la repository con il comando:
@@ -100,7 +112,7 @@ In questo file possono essere modificate diverse parti per avere configurazioni 
 Nel file ```database_seeding.sql``` viene specificata la struttura del database da creare al primo avvio del container. Vengono anche precaricati dei dati per consentire un utilizzo di prova dell'applicazione, quindi in caso di configurazione possono essere modificati direttamente in questo file. 
 
 ### File tsconfig.json
-Nel file ```tsconfig.json``` vengono specificate delle opzioni da passare al compilatore Typescript. Se si vogliono selezionare 
+Nel file ```tsconfig.json``` vengono specificate delle opzioni da passare al compilatore Typescript. 
 
 ## Diagrammi UML
 
@@ -111,7 +123,7 @@ Per progettare il sistema sono stati creati dei diagrammi che rendessero più ch
 Di seguito è presente il diagramma ER che indica le relazioni tra le varie tabelle presenti all'interno del database.
 
 <p align="center">
-  <img src="images/ER_diagram.png" height="300"/>
+  <img src="./images/ER_diagram.png" height="500"/>
 </p>
 
 ### Casi d'uso
@@ -119,7 +131,7 @@ Di seguito è presente il diagramma ER che indica le relazioni tra le varie tabe
 Di seguito è presente il diagramma dei casi d'uso dell'utente, indicando come si può interfacciare con le varie tabelle del database. 
 
 <p align="center">
-  <img src="images/UML_usecase.png" height="300"/>
+  <img src="./images/UML_usecase.png" height="1300"/>
 </p>
 
 ### Diagrammi di sequenza
@@ -129,37 +141,37 @@ Di seguito sono indicati i diagrammi di sequenza che vanno a identificare i perc
 #### Login
 
 <p align="center">
-  <img src="images/User_login_seq.png" height="300"/>
+  <img src="./images/User_login_seq.png" height="600"/>
 </p>
 
 #### Create operation
 
 <p align="center">
-  <img src="images/Create_sequence.png" height="300"/>
+  <img src="./images/Create_sequence.png" height="600"/>
 </p>
 
 #### Read, Update, Delete operations
 
 <p align="center">
-  <img src="images/RUD_Model sequence.png" height="300"/>
+  <img src="./images/RUD_Model sequence.png" height="800"/>
 </p>
 
 #### Transit Report Controller
 
 <p align="center">
-  <img src="images/TransitReport_sequence.png" height="300"/>
+  <img src="./images/TransitReport_sequence.png" height="600"/>
 </p>
 
 #### General Park Controller
 
 <p align="center">
-  <img src="images/GeneralParkingController_sequence.png" height="300"/>
+  <img src="./images/GeneralParkingController_sequence.png" height="600"/>
 </p>
 
 #### Single Park Controller
 
 <p align="center">
-  <img src="images/SingleParkController_sequence.png" height="300"/>
+  <img src="./images/SingleParkController_sequence.png" height="800"/>
 </p>
 
 ## Utilizzo
@@ -275,6 +287,58 @@ Ogni rotta utilizzata in questa applicazione viene autenticata tramite autentica
 | /api/singleParkStats/parkRevenues/:id | GET    | Recupero fatturato totale di un parcheggio con l'id selezionato | Operatore 
 
 ## Pattern utilizzati
+
+### Middleware
+
+Il Middleware Pattern è un design pattern utilizzato principalmente nello sviluppo di software, specialmente nelle applicazioni web e nei server HTTP. Questo pattern consente di gestire le richieste e le risposte attraverso una serie di funzioni componibili chiamate "middleware". Ogni middleware può eseguire un'operazione specifica e decidere se passare la richiesta al middleware successivo nella catena. Per passare la richiesta al middleware successivo, alla fine della logica in ogni middleware viene inserita una chiamata alla funzione next(). Al termine della catena di middleware che effettuano controlli viene inserito un middleware che si occupa della gestione degli errori che si verificano all'interno della catena. In questo progetto vengono usate tre tipologie principali di middleware:
+- Autenticazione, dove vengono fatti controlli riguardanti i permessi di un utente per effettuare un'operazione, così come anche un controllo sui token JWT.
+- Controllo, dove vengono fatti dei controlli generali che possono essere applicati in maniera generale.
+- Validazione, dove vengono fatti dei controlli riguardanti la validità dei dati passati ai vari controller. 
+
+<p align="center">
+  <img src="./images/Middleware.png" height="400"/>
+</p>
+
+### Factory
+
+
+Il pattern Factory è uno dei design pattern fondamentali e appartiene alla categoria dei pattern creazionali. Esso si occupa della creazione di oggetti tramite un unico metodo, senza specificare la classe esatta da istanziare. Questo avviene attraverso un'interfaccia per creare un oggetto, lasciando alle sottoclassi la decisione su quale oggetto istanziare. In questo progetto, il pattern è utilizzato per la gestione dei messaggi di errore e successo, con i relativi codici di risposta HTTP. In particolare, è stata definita l'interfaccia Message, implementata da tutti i messaggi di errore e successo. Sono state sviluppate due classi, ErrorFactory e SuccessFactory, che contengono rispettivamente i metodi getError() e getSuccess(). Questi metodi prendono in input la tipologia di messaggio e restituiscono un oggetto della classe di messaggio specificata, contenente anche il codice HTTP associato. Inoltre, per diversi messaggi, il metodo getResponse() è stato ampliato andando a implementare la possibilità di poter inserire un messaggio personalizzato all'interno del messaggio, in modo tale da facilitare il riutilizzo dei messaggi di errore e di successo per situazioni diverse fra loro. 
+
+<p align="center">
+  <img src="./images/Factory.png" height="200"/>
+</p>
+
+### Singleton
+
+Il singleton è un design pattern creazionale che garantisce la creazione di una sola istanza di una determinata classe e fornisce un punto di accesso globale a questa istanza. Questo pattern è utile in scenari in cui è necessario avere un controllo centralizzato su un'unica risorsa o configurazione, evitando la creazione di istanze multiple che potrebbero causare conflitti o incoerenze.
+
+In questo progetto, il pattern Singleton è stato implementato per gestire l'istanza della connessione al database. È cruciale che la connessione al database sia univoca per tutta l'applicazione per evitare problemi di concorrenza, ridurre il sovraccarico delle risorse e garantire la coerenza dei dati.
+
+<p align="center">
+  <img src="./images/Singleton.png" height="200"/>
+</p>
+
+### Model View Controller
+
+Il pattern Model-View-Controller (MVC) è un'architettura software che separa la logica di presentazione dei dati dalla logica di business, facilitando la manutenzione e l'estendibilità del codice. Nel progetto, questo pattern è stato implementato parzialmente, escludendo la componente View, poiché non rientrava negli obiettivi previsti. Di conseguenza, l'architettura risultante è un Model-Controller.
+
+il modello (Model) è responsabile della gestione dei dati e delle operazioni di accesso ai dati. Utilizzando Sequelize, un ORM (Object-Relational Mapping) per Node.js, il modello fornisce un'interfaccia per interagire con il database in modo orientato agli oggetti. Questo permette di definire schemi di dati, relazioni tra tabelle e operazioni CRUD (Create, Read, Update, Delete) senza scrivere query SQL manualmente.
+
+Il controller è la componente che gestisce la logica operativa dell'applicazione, rispondendo alle richieste dell'utente e interagendo con il modello per eseguire le operazioni richieste.
+
+Questo approccio garantisce una separazione chiara delle responsabilità, facilitando la manutenzione e l'espansione del codice. Utilizzando Sequelize come ORM, si riduce la complessità delle interazioni con il database e si migliora la sicurezza e l'integrità dei dati.
+
+<p align="center">
+  <img src="./images/mvc.png" height="400"/>
+</p>
+
+## Ulteriori strumenti
+
+### Generics
+
+I generics sono una funzionalità avanzata di linguaggi di programmazione tipizzati come TypeScript che permette di scrivere codice più flessibile e riutilizzabile. I generics consentono di definire funzioni, classi e interfacce che lavorano con tipi di dati non specificati, permettendo di utilizzare diversi tipi senza compromettere la sicurezza del tipo. Ciò avviene attraverso dei placeholder a cui poi, a RunTime, verrà poi sostituito il tipo effettivo. Utilizzando i generics, si può creare codice che funziona con una varietà di tipi, mantenendo al contempo un forte controllo dei tipi.
+
+In questo progetto, il principale utilizzo dei generics viene fatto sul CRUD controller, in modo tale da rendere queste operazioni più generali possibili per applicarle a modelli diversi tra loro. Questo approccio ci ha permesso di risparmiare una notevole quantità di codice ripetuto, dato che se non fossero stati presenti, avremmo avuto bisogno di un controller differente per ogni classe del Model. Grazie a ciò essi ci hanno permesso di scrivere codice più flessibile, riutilizzabile e sicuro.
 
 ## ✍️ Autori
 #### [Simone Giano](mailto:s1116146@studenti.univpm.it) (Matricola 1116146) 
