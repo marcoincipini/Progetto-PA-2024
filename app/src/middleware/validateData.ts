@@ -583,7 +583,7 @@ class validateData {
             return next(
                 ErrorFac.getMessage(
                     ErrorStatus.invalidFormat,
-                    'Invalid startDate. StartDate is expected a string with format AAAA-MM-GG%HH:MM:SS'
+                    'Invalid startDate. StartDate is expected a string with format AAAA-MM-GG HH:MM:SS'
                 ));
         }
 
@@ -592,7 +592,7 @@ class validateData {
             return next(
                 ErrorFac.getMessage(
                     ErrorStatus.invalidFormat,
-                    'Invalid endDate. EndDate is expected a string with format AAAA-MM-GG%HH:MM:SS'
+                    'Invalid endDate. EndDate is expected a string with format AAAA-MM-GG HH:MM:SS'
                 ));
         }
 

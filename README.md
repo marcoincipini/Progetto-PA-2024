@@ -1,5 +1,5 @@
 # Progetto-PA-2024: Backend per un sistema di gestione del calcolo del costo dei parcheggi
-<a><img Progetto-PA-2024="images/logo-univpm.png" height='60' align="right"/></a>
+<a><img src="images/logo-univpm.png" height='60' align="right"/></a>
 
 ## Specifica e obiettivi del progetto
 Si realizzi un sistema che consenta di gestire il calcolo del costo dei parcheggi a seguito del passaggio di autoveicoli con classi differenti tra un varco di ingresso e di uscita. Un parcheggio può avere diversi punti di ingresso e diversi punti di uscita. Dovranno essere modellati le tipologie di veicolo che hanno poi costi differenti. Dovranno essere inseribili i transiti impostando data e ora del passaggio e targa del veicolo lungo un varco specifico di un dato parcheggio; la richiesta di inserimento deve essere rifiutata se non ci sono più posti disponibili all’interno del parcheggio. Un veicolo in un giorno può parcheggiare in diversi parcheggi. Il sistema deve anche provvedere a calcolare il costo del parcheggio in funzione della permanenza effettiva all’interno dello stesso.
@@ -104,12 +104,63 @@ Nel file ```tsconfig.json``` vengono specificate delle opzioni da passare al com
 
 ## Diagrammi UML
 
-### Casi d'uso
-
-### Diagrammi di sequenza
+Per progettare il sistema sono stati creati dei diagrammi che rendessero più chiara la struttura generale del progetto.
 
 ### Diagramma ER
 
+Di seguito è presente il diagramma ER che indica le relazioni tra le varie tabelle presenti all'interno del database.
+
+<p align="center">
+  <img src="images/ER_diagram.png" height="300"/>
+</p>
+
+### Casi d'uso
+
+Di seguito è presente il diagramma dei casi d'uso dell'utente, indicando come si può interfacciare con le varie tabelle del database. 
+
+<p align="center">
+  <img src="images/UML_usecase.png" height="300"/>
+</p>
+
+### Diagrammi di sequenza
+
+Di seguito sono indicati i diagrammi di sequenza che vanno a identificare i percorsi che hanno le varie rotte più importanti in caso di successo o di fallimento. Per le CRUD è stato creato un diagramma generale, in quanto il percorso che viene seguito dalle varie rotte risulta essere lo stesso con parametri differenti.
+
+#### Login
+
+<p align="center">
+  <img src="images/User_login_seq.png" height="300"/>
+</p>
+
+#### Create operation
+
+<p align="center">
+  <img src="images/Create_sequence.png" height="300"/>
+</p>
+
+#### Read, Update, Delete operations
+
+<p align="center">
+  <img src="images/RUD_Model sequence.png" height="300"/>
+</p>
+
+#### Transit Report Controller
+
+<p align="center">
+  <img src="images/TransitReport_sequence.png" height="300"/>
+</p>
+
+#### General Park Controller
+
+<p align="center">
+  <img src="images/GeneralParkingController_sequence.png" height="300"/>
+</p>
+
+#### Single Park Controller
+
+<p align="center">
+  <img src="images/SingleParkController_sequence.png" height="300"/>
+</p>
 
 ## Utilizzo
 
@@ -159,13 +210,34 @@ http://localhost:3000/api/users/1
 http://localhost:3000/api/users/2
 ```
 
-La rotta ```/api/transitReport``` non presenta un controllo sull'autorizzazione come operatore, in quanto può essere eseguita sia da un utente operatore che da un utente automobilista. Se la rotta viene eseguita dall'operatore, il risultato ottenuto consisterà nello stato dei transiti di tutti i veicoli indicati, mentre se viene eseguita dall'automobilista il risultato ottenuto consisterà nello stato dei transiti dei veicoli associati solamente all'utente che ha fatto la richiesta.
+La rotta ```/api/transitReport``` non presenta un controllo sull'autorizzazione come operatore, in quanto può essere eseguita sia da un utente operatore che da un utente automobilista. Se la rotta viene eseguita dall'operatore, il risultato ottenuto consisterà nello stato dei transiti di tutti i veicoli indicati, mentre se viene eseguita dall'automobilista il risultato ottenuto consisterà nello stato dei transiti dei veicoli associati solamente all'utente che ha fatto la richiesta. L'input di questa rotta consiste nell'inserimento di targhe, periodo temporale e formato desiderato per la risposta, se pdf o json. Il tutto va inserito nei parametri della richiesta:
+```
+plates:AB123CD,EF456GH,QR345ST
+startDate:2024-03-12 10:50:54
+endDate:2024-06-15 07:15:32
+format:json
+```
 
-Le rotte, ```/api/generalParkStats/parkAverageVacancies``` e ```/api/generalParkStats/parkRevenues``` permettono di ottenere, rispettivamente, il numero medio di posti liberi per parcheggio facendo una distinzione per fascia oraria e il fatturato totale di ciascun parcheggio. 
+Le rotte, ```/api/generalParkStats/parkAverageVacancies``` e ```/api/generalParkStats/parkRevenues``` permettono di ottenere, rispettivamente, il numero medio di posti liberi per parcheggio facendo una distinzione per fascia oraria e il fatturato totale di ciascun parcheggio. L'input di queste rotte consiste in un periodo temporale in cui considerare i dati desiderati, e in un parametro che indica il formato desiderato per la risposta, se pdf o json. Il tutto va inserito nei parametri della richiesta:
 
-Le rotte, ```/api/singleParkStats/nTransits/:id``` e ```/api/singleParkStats/parkRevenues/:id``` permettono di ottenere, rispettivamente, il numero totale di transiti distinti per tipologia di veicolo e per fascia oraria di un parcheggio singolo e il fatturato totale del parcheggio preso in considerazione. 
+ ```/api/generalParkStats/parkAverageVacancies```
+```
+startDate:2024-03-12 10:50:54
+endDate:2024-06-15 07:15:32
+format:json
+```
+```/api/generalParkStats/parkRevenues```
+```
+startDate:2024-03-12 10:50:54
+endDate:2024-06-15 07:15:32
+format:pdf
+```
+Le rotte, ```/api/singleParkStats/nTransits/:id``` e ```/api/singleParkStats/parkRevenues/:id``` permettono di ottenere, rispettivamente, il numero totale di transiti distinti per tipologia di veicolo e per fascia oraria di un parcheggio singolo e il fatturato totale del parcheggio preso in considerazione. L'input di queste rotte consiste in un periodo temporale in cui considerare i dati desiderati. Il tutto va inserito nei parametri della richiesta:
 
-
+```
+startDate:2024-03-12 10:50:54
+endDate:2024-06-15 07:15:32
+```
 
 
 ### Rotte
