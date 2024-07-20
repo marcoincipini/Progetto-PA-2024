@@ -35,6 +35,9 @@ class TransitStatusController {
                 if (selectedPlates) {
                     let exitTransitList = await this.collectTransitsAndBills(plates, startDate, endDate);
                     return this.selectFormat(exitTransitList, req, res);
+                } else {
+                    const errMessage = ErrorFac.getMessage(ErrorStatus.functionNotWorking, 'Plates not correct, select only the ones owned').getResponse();
+                    return res.json({ Error: errMessage });
                 }
             }
         } catch (err) {

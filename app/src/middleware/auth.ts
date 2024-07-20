@@ -150,10 +150,10 @@ class authMiddleware {
 
             // Check if the payload is for a user or a passage
             if (verified && (verified as any).email) {
-                // Add user email to req for later use in controllers
+                // Add token to req for later use in controllers
                 req.body.user = verified;
             } else if (verified && (verified as any).name) {
-                // Add passage name to req for later use in controllers
+                // Add token to req for later use in controllers
                 req.body.passage = verified;
             } else {
                 // If none of the conditions are met, return not jwt not valid error

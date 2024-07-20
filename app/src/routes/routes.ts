@@ -35,19 +35,19 @@ routerApp.put('/api/users/:id', authMiddleware.authenticateJWT, authMiddleware.i
 routerApp.delete('/api/users/:id', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateRequestId, globalCheck.checkRecordExists(User), (req: any, res: any) => CRUDController.deleteRecord(User, req, res));
 
 // Parking routes with authentication and validation middleware
-routerApp.post('/api/parkings', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateParkingDataCreation, (req: any, res: any) => CRUDController.createRecord(User, req, res));
+routerApp.post('/api/parkings', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateParkingDataCreation, (req: any, res: any) => CRUDController.createRecord(Parking, req, res));
 routerApp.get('/api/parkings/:id', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateRequestId, globalCheck.checkRecordExists(Parking), (req: any, res: any) => CRUDController.getRecord(Parking, req, res));
 routerApp.put('/api/parkings/:id', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateRequestId, globalCheck.checkRecordExists(Parking), validateData.validateParkingDataUpdate, (req: any, res: any) => CRUDController.updateRecord(Parking, req, res));
 routerApp.delete('/api/parkings/:id', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateRequestId, globalCheck.checkRecordExists(Parking), (req: any, res: any) => CRUDController.deleteRecord(Parking, req, res));
 
 // Passage routes with authentication and validation middleware
-routerApp.post('/api/passages', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validatePassageDataCreation, (req: any, res: any) => CRUDController.createRecord(User, req, res));
+routerApp.post('/api/passages', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validatePassageDataCreation, (req: any, res: any) => CRUDController.createRecord(Passage, req, res));
 routerApp.get('/api/passages/:id', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateRequestId, globalCheck.checkRecordExists(Passage), (req: any, res: any) => CRUDController.getRecord(Passage, req, res));
 routerApp.put('/api/passages/:id', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateRequestId, globalCheck.checkRecordExists(Passage), validateData.validatePassageDataUpdate, (req: any, res: any) => CRUDController.updateRecord(Passage, req, res));
 routerApp.delete('/api/passages/:id', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateRequestId, globalCheck.checkRecordExists(Passage), (req: any, res: any) => CRUDController.deleteRecord(Passage, req, res));
 
 // Fee routes with authentication and validation middleware
-routerApp.post('/api/fees', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateFeeDataCreation, (req: any, res: any) => CRUDController.createRecord(User, req, res));
+routerApp.post('/api/fees', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateFeeDataCreation, (req: any, res: any) => CRUDController.createRecord(Fee, req, res));
 routerApp.get('/api/fees/:id', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateRequestId, globalCheck.checkRecordExists(Fee), (req: any, res: any) => CRUDController.getRecord(Fee, req, res));
 routerApp.put('/api/fees/:id', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateRequestId, globalCheck.checkRecordExists(Fee), validateData.validateFeeDataUpdate, (req: any, res: any) => CRUDController.updateRecord(Fee, req, res));
 routerApp.delete('/api/fees/:id', authMiddleware.authenticateJWT, authMiddleware.isOperator, validateData.validateRequestId, globalCheck.checkRecordExists(Fee), (req: any, res: any) => CRUDController.deleteRecord(Fee, req, res));

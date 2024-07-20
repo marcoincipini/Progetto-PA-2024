@@ -46,6 +46,10 @@ class validateData {
                 return next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, "Passage not found or does not exist"));
             }
 
+            if((!passage.entrance && direction === 'E') || (!passage.exit && direction === 'U')){
+                return next(ErrorFac.getMessage(ErrorStatus.functionNotWorking, "The transit cannot be the opposite direction of the passage"));
+            }
+
             // Check if plate is a valid string and if the vehicle exists
             if (!isValidString(plate)) {
                 return next(ErrorFac.getMessage(ErrorStatus.invalidFormatOrResourceNotFound, 'Invalid plate. Plate is expected a string'));
@@ -83,6 +87,8 @@ class validateData {
             if (existingTransit) {
                 return next(ErrorFac.getMessage(ErrorStatus.resourceAlreadyPresent, 'Transit already existing'));
             }
+
+
 
             next();
         } catch (err) {
@@ -293,40 +299,28 @@ class validateData {
         const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
         const hourRegex = /^\d{2}:\d{2}:\d{2}$/;
         try {
-
+            const passage = await Passage.findByPk(passage_id);
             // Verify if passage_id is a number
-            if (typeof passage_id !== 'number') {
+            if (passage && (typeof passage_id !== 'number')) {
                 return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, 'Invalid passage_id. Passage id is expected a number'));
             }
-
-            // Verify if passage_id exists in the database
-            const passage = await Passage.findByPk(passage_id);
-            if (!passage) {
-                return next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, 'Passage not found'));
-            }
-
+            const plateEx = await Vehicle.findByPk(plate);
             // Verify if plate is a valid string
-            if (!isValidString(plate)) {
+            if (plateEx && !isValidString(plate)) {
                 return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, 'Invalid plate. Plate is expected a string'));
             }
 
-            // Verify if plate exists in the database
-            const plateEx = await Vehicle.findByPk(plate);
-            if (!plateEx) {
-                return next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, 'Plate not found'));
-            }
-
             // Verify if passing_by_date is a valid string if it exists
-            if (!isValidString(passing_by_date) && passing_by_date) {
-                return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, 'Invalid passing_by_date. Passing_by_date is expected a string'));
+            if (!isValidString(passing_by_date) && passing_by_date && !dateRegex.test(passing_by_date)) {
+                return next(ErrorFac.getMessage(ErrorStatus.invalidDateFormat));
             }
 
-            // Verify if passing_by_hour is a valid string if it exists
-            if (!isValidString(passing_by_hour) && passing_by_hour) {
-                return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, 'Invalid passing_by_hour. Passing_by_hour is expected a string'));
+            // Verify if passing_by_hour has a valid format if it exists
+            if (!isValidString(passing_by_hour) && passing_by_hour && !hourRegex.test(passing_by_hour)) {
+                return next(ErrorFac.getMessage(ErrorStatus.invalidHourFormat));
             }
 
-            // Verify if direction is a valid string if it exists
+            // Verify if direction has a valid format if it exists
             if (!isValidString(direction) && direction) {
                 return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, 'Invalid direction. Direction is expected a string'));
             }
@@ -334,16 +328,6 @@ class validateData {
             // Verify if vehicle_type is a valid string if it exists
             if (!isValidString(vehicle_type) && vehicle_type) {
                 return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, 'Invalid vehicle_type. Vehicle_type is expected a string'));
-            }
-
-            // Verify if passing_by_date matches the date format
-            if (!dateRegex.test(passing_by_date)) {
-                return next(ErrorFac.getMessage(ErrorStatus.invalidDateFormat));
-            }
-
-            // Verify if passing_by_hour matches the hour format
-            if (!hourRegex.test(passing_by_hour)) {
-                return next(ErrorFac.getMessage(ErrorStatus.invalidHourFormat));
             }
 
             // Verify if direction has the correct format and values
@@ -445,14 +429,9 @@ class validateData {
             const parking = await Parking.findByPk(parking_id);
 
             // Verify if parking_id is a number
-            if (typeof parking_id !== 'number') {
+            if (parking && (typeof parking_id !== 'number')) {
                 const specificMessage = 'Invalid parking_id. Parking ID must be a number';
                 return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, specificMessage));
-            }
-
-            // Verify if parking exists in the database
-            if (!parking) {
-                return next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, 'Parking not found'));
             }
 
             // Verify if name is a valid string with a maximum length of 255 characters if it exists
@@ -485,17 +464,11 @@ class validateData {
         const { parking_id, name, hourly_amount, vehicle_type, night, festive } = req.body;
         try {
 
+            const parking = await Parking.findByPk(parking_id);
             // Verify if parking_id is a number
-            if (typeof parking_id !== 'number') {
+            if (parking && (typeof parking_id !== 'number')) {
                 return next(ErrorFac.getMessage(ErrorStatus.invalidFormat, 'Invalid parking_id. Parking ID must be a number'));
 
-            }
-
-            const parking = await Parking.findByPk(parking_id);
-
-            // Verify if parking exists in the database
-            if (!parking) {
-                return next(ErrorFac.getMessage(ErrorStatus.resourceNotFoundError, 'Parking not found'));
             }
 
             // Verify if name is a valid string with a maximum length of 255 characters if it exists
@@ -542,9 +515,9 @@ class validateData {
     // Middleware to validate data for the request of TransitStatusController
     validateTransitStatusControllerRequest(req: Request, res: Response, next: NextFunction) {
 
-        const dateTimeRegex = /^\d{4}-\d{2}-\d{2} d{2}:\d{2}:\d{2}$/;
+        const dateTimeRegex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
         const { plates, startDate, endDate, format } = req.query;
-        const { role } = req.body;
+        const { role } = req.body.user;
 
         let transformedPlates: string[] = [];
 
@@ -567,7 +540,7 @@ class validateData {
             return next(
                 ErrorFac.getMessage(
                     ErrorStatus.invalidFormat,
-                    'Invalid startDate. StartDate is expected a string with format AAAA-MM-GG%HH:MM:SS'
+                    'Invalid startDate. StartDate is expected a string with format AAAA-MM-GG HH:MM:SS'
                 ));
         }
 
@@ -576,12 +549,13 @@ class validateData {
             return next(
                 ErrorFac.getMessage(
                     ErrorStatus.invalidFormat,
-                    'Invalid endDate. EndDate is expected a string with format AAAA-MM-GG%HH:MM:SS'
+                    'Invalid endDate. EndDate is expected a string with format AAAA-MM-GG HH:MM:SS'
                 ));
         }
 
         // Verify if role is a valid string within acceptable values
         if ((!isValidString(role) || role.length > 32 || (role !== 'operatore' && role !== 'automobilista')) || !role) {
+
             return next(ErrorFac.getMessage(
                 ErrorStatus.invalidFormat,
                 'Invalid role. Role must be a string with maximum length of 32 characters'
