@@ -42,15 +42,16 @@ Per il testing dell'applicazione viene utilizzato il client API Postman. La coll
     ```
     git clone https://github.com/marcoincipini/Progetto-PA-2024.git
     ```
+2. Inserire il file .env desiderato nella cartella app
 
-2.  Avviare il docker-compose costituito dal container dell'applicazione e dal container Postgres. Questo comando permette di buildare il codice e di far partire automaticamente il server
+3.  Avviare il docker-compose costituito dal container dell'applicazione e dal container Postgres. Questo comando permette di buildare il codice e di far partire automaticamente il server
     ```
     docker-compose up --build 
     ```
 
-3. Aprire postman e caricare la seguente collection
+4. Aprire postman e caricare la seguente collection
 
-4.  (Se necessario) Dato che il codice va a creare un database Postgres tramite un file di seeding, se fosse necessario eliminare tutti i cambiamenti fatti al database sarebbe necessario buttare giù i container e riavviare l'applicazione con il comando indicato sopra.
+5.  (Se necessario) Dato che il codice va a creare un database Postgres tramite un file di seeding, se fosse necessario eliminare tutti i cambiamenti fatti al database sarebbe necessario buttare giù i container e riavviare l'applicazione con il comando indicato sopra.
     ```
     docker-compose down
     ```
