@@ -26,7 +26,7 @@
 ## Specifica e obiettivi del progetto
 Si realizzi un sistema che consenta di gestire il calcolo del costo dei parcheggi a seguito del passaggio di autoveicoli con classi differenti tra un varco di ingresso e di uscita. Un parcheggio può avere diversi punti di ingresso e diversi punti di uscita. Dovranno essere modellati le tipologie di veicolo che hanno poi costi differenti. Dovranno essere inseribili i transiti impostando data e ora del passaggio e targa del veicolo lungo un varco specifico di un dato parcheggio; la richiesta di inserimento deve essere rifiutata se non ci sono più posti disponibili all’interno del parcheggio. Un veicolo in un giorno può parcheggiare in diversi parcheggi. Il sistema deve anche provvedere a calcolare il costo del parcheggio in funzione della permanenza effettiva all’interno dello stesso.
 
-La specifica completa è consultabile nel seguente [documento](Programmazione avanzata richieste.pdf)
+La specifica completa è consultabile nel seguente [documento](Programmazione_avanzata_richieste.pdf)
 
 ## Installazione
 
